@@ -25,13 +25,15 @@
 # - name: set ssh pubkey
 #   import_role:
 #       name: sshkey
-#   when: 
-#     - pubkey is defined
+  # when: 
+  #   - pubkey is defined
 
 # sets account ssh pubkey to limited user
 - name: set ssh pubkey
   import_role:
       name: sshkey
+#   when: 
+#     - pubkey is defined
 
 # disable root login w/wo pubkey
 - name: secure ssh
