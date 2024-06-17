@@ -25,7 +25,7 @@
       - bison
       - nodejs
       - libcurl4-openssl-dev
-      # - ruby-dev
+      - ruby-dev
     state: latest
     update_cache: true
 
@@ -105,53 +105,9 @@
     src: 'beef_config.yaml.j2'
     dest: '/home/beef/config.yaml'
 
-### Debug Ruby & Bundler version mismatch ###
-# Install rbenv and ruby-build to manage Ruby versions
-- name: clone rbenv repository
-  git:
-    repo: 'https://github.com/rbenv/rbenv.git'
-    dest: /home/beef/.rbenv
-  become_user: beef
-  become: true
-
-- name: clone ruby-build as an rbenv plugin
-  git:
-    repo: 'https://github.com/rbenv/ruby-build.git'
-    dest: /home/beef/.rbenv/plugins/ruby-build
-  become_user: beef
-  become: true
-
-- name: set up rbenv environment variables
-  shell: |
-    echo 'export PATH="$HOME/.rbenv/bin:$PATH"' >> /home/beef/.bashrc
-    echo 'eval "$(rbenv init -)"' >> /home/beef/.bashrc
-    source /home/beef/.bashrc
-  become_user: beef
-  become: true
-
-- name: install ruby 3.0.0
-  shell: |
-    export PATH="/home/beef/.rbenv/bin:$PATH"
-    eval "$(rbenv init -)"
-    rbenv install 3.0.0
-    rbenv global 3.0.0
-  become_user: beef
-  become: true
-
-- name: install Bundler 2.5.13
-  shell: |
-    export PATH="/home/beef/.rbenv/bin:$PATH"
-    eval "$(rbenv init -)"
-    gem install bundler -v 2.5.13
-    rbenv rehash
-  become_user: beef
-  become: true
-### Debug Ruby & Bundler version mismatch ###
-
 # Bundler module doesn't support the config set so using command
 - name: bundle config setup
-  # command: bundle3.0 config set --local path /home/beef/.gem
-  command: bundle2.5 config set --local path /home/beef/.gem
+  command: bundle3.0 config set --local path /home/beef/.gem
   become_user: beef
   become: true
   args:
@@ -159,8 +115,7 @@
 
 - name: install dependencies using bundle
   community.general.bundler:
-    #executable: /usr/bin/bundle3.0
-    executable: /usr/bin/bundle2.5
+    executable: /usr/bin/bundle3.0
     state: present
     chdir: /home/beef
   become_user: beef
