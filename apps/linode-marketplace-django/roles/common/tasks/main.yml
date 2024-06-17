@@ -28,12 +28,17 @@
   when: disable_root is defined
 
 # sets customer supplied ssh pubkey to limited user
+# - name: set ssh pubkey
+#   import_role:
+#       name: sshkey
+#   when: 
+#     - pubkey is defined
+
+# sets account ssh pubkey to limited user
 - name: set ssh pubkey
   import_role:
       name: sshkey
-  when: 
-    - pubkey is defined
-
+      
 # apt_setup_update
 - name: update system packages
   import_role:
