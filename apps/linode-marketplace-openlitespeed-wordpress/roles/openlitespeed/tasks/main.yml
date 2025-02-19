@@ -21,11 +21,6 @@
     src: '/root/.litespeed_password'
   register: litespeed_password_encode
 
-- name: Slurp content of /root/.litespeed_password
-  ansible.builtin.slurp:
-    src: /root/.litespeed_password
-  register: litespeed_encoded_password
-
 - name: get db password
   ansible.builtin.slurp:
     src: '/root/.db_password'
@@ -56,9 +51,56 @@
     line: "{{ item.key }}: {{ item.value }}"
   loop: "{{ lookup('dict', passwords) }}"
 
-# verify wordpress is installed before configuring admin info
+# Create WordPress database and configure access
+- name: create .my.cnf file with mysql creds
+  ansible.builtin.copy:
+    dest: "/root/.my.cnf"
+    owner: root
+    group: root
+    mode: '0644'
+    content: |
+      [client]
+      user=root
+      password={{ mysql_root_password }}
+
+- name: run mysql secure installation
+  import_role:
+    name: securemysql
+
+- name: create wordpress database
+  mysql_db:
+    name: "{{ wp_db_name }}"
+    state: present
+    login_unix_socket: /var/run/mysqld/mysqld.sock
+
+- name: grant wordpress user access to database
+  mysql_user:
+    name: "{{ wp_db_user }}"
+    password: "{{ wordpress_mysql_pass }}"
+    priv: "{{ wp_db_name }}.*:ALL"
+    host: localhost
+    state: present
+    login_unix_socket: /var/run/mysqld/mysqld.sock
+
+# Install and configure WordPress
+- name: download wordpress core
+  command: wp core download --path=/var/www/html --allow-root
+  args:
+    creates: /var/www/html/wp-config-sample.php
+
+- name: create wp-config.php
+  command: >
+    wp config create --allow-root
+    --dbname={{ wp_db_name }}
+    --dbuser={{ wp_db_user }}
+    --dbpass={{ wordpress_mysql_pass }}
+    --dbhost=localhost
+    --path=/var/www/html
+  args:
+    creates: /var/www/html/wp-config.php
+
 - name: verify WordPress checksums
-  command: bash -lc "wp core verify-checksums --path='/var/www/html' --allow-root"
+  command: bash -lc "wp core verify-checksums --path=/var/www/html --allow-root"
   register: checksum_verification
   retries: 10
   delay: 30
@@ -78,20 +120,13 @@
           --admin_password="{{ wp_admin_pass }}" \
           --path="/var/www/html"
 
-- name: create .my.cnf file with mysql creds
-  ansible.builtin.copy:
-    dest: "/root/.my.cnf"
-    owner: root
-    group: root
-    mode: '0644'
-    content: |
-      [client]
-      user=root
-      password={{ mysql_root_password }}
-
-- name: run mysql secure installation
-  import_role:
-    name: securemysql
+- name: ensure correct ownership of wordpress files
+  file:
+    path: /var/www/html
+    owner: www-data
+    group: www-data
+    recurse: yes
+    state: directory
 
 - name: run domain setup script with full automation
   ansible.builtin.expect:
