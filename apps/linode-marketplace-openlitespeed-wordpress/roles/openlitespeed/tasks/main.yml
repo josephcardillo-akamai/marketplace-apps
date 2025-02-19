@@ -106,11 +106,26 @@
     creates: /var/www/html.bak
     removes: /var/www/html
 
+- name: create html directory
+  file:
+    path: /var/www/html
+    state: directory
+    owner: www-data
+    group: www-data
+    mode: '0755'
+
 - name: move WordPress files to correct location
-  command: mv /var/www/html.land /var/www/html
+  command: mv /var/www/html.land/* /var/www/html/
   args:
-    creates: /var/www/html
-    removes: /var/www/html.land
+    creates: /var/www/html/wp-config.php
+
+- name: ensure correct ownership and permissions
+  file:
+    path: /var/www/html
+    owner: www-data
+    group: www-data
+    mode: '0755'
+    recurse: yes
 
 - name: verify WordPress checksums
   command: bash -lc "wp core verify-checksums --path=/var/www/html --allow-root"
@@ -132,14 +147,6 @@
           --admin_email="{{ soa_email_address }}" \
           --admin_password="{{ wp_admin_pass }}" \
           --path="/var/www/html"
-
-- name: ensure correct ownership of wordpress files
-  file:
-    path: /var/www/html
-    owner: www-data
-    group: www-data
-    recurse: yes
-    state: directory
 
 - name: run domain setup script with full automation
   ansible.builtin.expect:
