@@ -84,9 +84,9 @@
 
 # Install and configure WordPress
 - name: download wordpress core
-  command: wp core download --path=/var/www/html --allow-root
+  command: wp core download --path=/var/www/html.land --allow-root
   args:
-    creates: /var/www/html/wp-config-sample.php
+    creates: /var/www/html.land/wp-config-sample.php
 
 - name: create wp-config.php
   command: >
@@ -95,9 +95,22 @@
     --dbuser={{ wp_db_user }}
     --dbpass={{ wordpress_mysql_pass }}
     --dbhost=localhost
-    --path=/var/www/html
+    --path=/var/www/html.land
   args:
-    creates: /var/www/html/wp-config.php
+    creates: /var/www/html.land/wp-config.php
+
+# Move WordPress files to correct location
+- name: backup existing html directory
+  command: mv /var/www/html /var/www/html.old
+  args:
+    creates: /var/www/html.old
+    removes: /var/www/html
+
+- name: move WordPress files to correct location
+  command: mv /var/www/html.land /var/www/html
+  args:
+    creates: /var/www/html
+    removes: /var/www/html.land
 
 - name: verify WordPress checksums
   command: bash -lc "wp core verify-checksums --path=/var/www/html --allow-root"
