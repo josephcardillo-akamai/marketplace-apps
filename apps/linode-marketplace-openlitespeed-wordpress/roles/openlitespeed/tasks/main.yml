@@ -101,9 +101,9 @@
 
 # Move WordPress files to correct location
 - name: backup existing html directory
-  command: mv /var/www/html /var/www/html.old
+  command: mv /var/www/html /var/www/html.bak
   args:
-    creates: /var/www/html.old
+    creates: /var/www/html.bak
     removes: /var/www/html
 
 - name: move WordPress files to correct location
