@@ -21,6 +21,11 @@
     src: '/root/.litespeed_password'
   register: litespeed_password_encode
 
+- name: Slurp content of /root/.litespeed_password
+  ansible.builtin.slurp:
+    src: /root/.litespeed_password
+  register: litespeed_encoded_password
+
 - name: get db password
   ansible.builtin.slurp:
     src: '/root/.db_password'
@@ -51,84 +56,19 @@
     line: "{{ item.key }}: {{ item.value }}"
   loop: "{{ lookup('dict', passwords) }}"
 
-# Create WordPress database and configure access
-- name: create .my.cnf file with mysql creds
-  ansible.builtin.copy:
-    dest: "/root/.my.cnf"
-    owner: root
-    group: root
-    mode: '0644'
-    content: |
-      [client]
-      user=root
-      password={{ mysql_root_password }}
-
-- name: run mysql secure installation
-  import_role:
-    name: securemysql
-
-- name: create wordpress database
-  mysql_db:
-    name: "{{ wp_db_name }}"
-    state: present
-    login_unix_socket: /var/run/mysqld/mysqld.sock
-
-- name: grant wordpress user access to database
-  mysql_user:
-    name: "{{ wp_db_user }}"
-    password: "{{ wordpress_mysql_pass }}"
-    priv: "{{ wp_db_name }}.*:ALL"
-    host: localhost
-    state: present
-    login_unix_socket: /var/run/mysqld/mysqld.sock
-
-# Install and configure WordPress
-- name: download wordpress core
-  command: wp core download --path=/var/www/html.land --allow-root
+- name: Swap WordPress directories if necessary
+  become: yes
+  shell: |
+    if [ ! -f /var/www/html/wp-config.php ] && [ -d /var/www/html.land ]; then
+      rm -rf /var/www/html
+      mv /var/www/html.land /var/www/html
+    fi
   args:
-    creates: /var/www/html.land/wp-config-sample.php
+    warn: false
 
-- name: create wp-config.php
-  command: >
-    wp config create --allow-root
-    --dbname={{ wp_db_name }}
-    --dbuser={{ wp_db_user }}
-    --dbpass={{ wordpress_mysql_pass }}
-    --dbhost=localhost
-    --path=/var/www/html.land
-  args:
-    creates: /var/www/html.land/wp-config.php
-
-# Move WordPress files to correct location
-- name: backup existing html directory
-  command: mv /var/www/html /var/www/html.bak
-  args:
-    creates: /var/www/html.bak
-    removes: /var/www/html
-
-- name: create html directory
-  file:
-    path: /var/www/html
-    state: directory
-    owner: www-data
-    group: www-data
-    mode: '0755'
-
-- name: move WordPress files to correct location
-  command: mv /var/www/html.land/* /var/www/html/
-  args:
-    creates: /var/www/html/wp-config.php
-
-- name: ensure correct ownership and permissions
-  file:
-    path: /var/www/html
-    owner: www-data
-    group: www-data
-    mode: '0755'
-    recurse: yes
-
+# verify wordpress is installed before configuring admin info
 - name: verify WordPress checksums
-  command: bash -lc "wp core verify-checksums --path=/var/www/html --allow-root"
+  command: bash -lc "wp core verify-checksums --path='/var/www/html' --allow-root"
   register: checksum_verification
   retries: 10
   delay: 30
@@ -147,6 +87,22 @@
           --admin_email="{{ soa_email_address }}" \
           --admin_password="{{ wp_admin_pass }}" \
           --path="/var/www/html"
+
+
+- name: create .my.cnf file with mysql creds
+  ansible.builtin.copy:
+    dest: "/root/.my.cnf"
+    owner: root
+    group: root
+    mode: '0644'
+    content: |
+      [client]
+      user=root
+      password={{ mysql_root_password }}
+
+- name: run mysql secure installation
+  import_role:
+    name: securemysql
 
 - name: run domain setup script with full automation
   ansible.builtin.expect:
