@@ -1,0 +1,83 @@
+---
+- name: execute wpimgsetup script
+  ansible.builtin.command:
+    cmd: "bash /tmp/wpimgsetup.sh"
+  register: wpimg_result
+  ignore_errors: true
+
+########################################################
+# The wpimgsetup.sh script calls the ols1clk.sh script,
+# which will fail due to a php memory issue when the
+# script attempts to install wordpress. 
+# This is due to the order of functions in the `main` function
+# of the ols1clk.sh script. Wordpress is being installed
+# before the php memory limit is raised to 256MB.
+# To work around this issue, this playbook will cleanup
+# after the first attempt and try again. This time with
+# the php memory limit already raised to 256MB from
+# the previous time the wpimgsetup.sh script ran. 
+# Once OLS fixes this on their end, we can remove this section.
+########################################################  
+- name: check if PHP memory error occurred
+  ansible.builtin.set_fact:
+    php_memory_error: "{{ 'Allowed memory size' in wpimg_result.stderr }}"
+  when: wpimg_result.stderr is defined
+
+- name: cleanup after failed first attempt
+  block:
+    - name: remove partial wordpress installations
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - "/var/www/html"
+        - "/var/www/html.land"
+        - "/var/www/phpmyadmin"
+
+    - name: stop mysql service
+      ansible.builtin.service:
+        name: mysql
+        state: stopped
+
+    - name: remove mysql data directory
+      ansible.builtin.file:
+        path: /var/lib/mysql
+        state: absent
+
+    - name: recreate mysql data directory
+      ansible.builtin.file:
+        path: /var/lib/mysql
+        state: directory
+        owner: mysql
+        group: mysql
+        mode: '0755'
+
+    - name: initialize mysql data directory
+      ansible.builtin.command:
+        cmd: mysql_install_db --user=mysql --datadir=/var/lib/mysql
+      become: yes
+
+    - name: start mysql service
+      ansible.builtin.service:
+        name: mysql
+        state: started
+  when: php_memory_error | default(false) | bool
+
+- name: retry wpimgsetup script after cleanup
+  ansible.builtin.command:
+    cmd: "bash /tmp/wpimgsetup.sh"
+  when: php_memory_error | default(false) | bool
+  register: wpimg_retry_result
+  failed_when: 
+    - wpimg_retry_result.rc != 0
+    - "'Allowed memory size' not in wpimg_retry_result.stderr"
+########################################################
+# End of cleanup section
+########################################################
+
+- name: execute per-instance script
+  ansible.builtin.command:
+    cmd: "bash /tmp/per-instance.sh"
+  when: 
+    - (wpimg_result.rc == 0) or 
+      (wpimg_retry_result is defined and wpimg_retry_result.rc == 0)

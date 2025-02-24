@@ -1,0 +1,23 @@
+---
+- name: run domain setup script with full automation
+  ansible.builtin.expect:
+    command: "/opt/domainsetup.sh"
+    responses:
+      "(?i)Your domain:": "{{ _domain }}"
+      "(?i)Please verify it is correct": "y"
+      "(?i)Do you wish to issue a Let's encrypt certificate for this domain": "y"
+      "(?i)Please enter your E-mail": "{{ soa_email_address }}"
+      "(?i)Please verify it is correct": "y"
+      "(?i)Do you wish to force HTTPS rewrite rule for this domain": "y"
+      "(?i)Do you wish to update the system now": "y"
+    timeout: 120
+
+- name: update ssl path for lsws admin_config.conf
+  ansible.builtin.lineinfile:
+    path: /usr/local/lsws/admin/conf/admin_config.conf
+    regexp: '^\s*{{ item.key }}\s+.*$'
+    line: "  {{ item.key }}               /etc/letsencrypt/live/{{ _domain }}/{{ item.file }}"
+  loop:
+    - { key: 'keyFile', file: 'privkey.pem' }
+    - { key: 'certFile', file: 'fullchain.pem' }
+  notify: reload lsws

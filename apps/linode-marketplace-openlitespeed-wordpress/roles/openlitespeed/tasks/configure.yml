@@ -1,0 +1,37 @@
+---
+# verify wordpress is installed before configuring admin info
+- name: verify WordPress checksums
+  command: bash -lc "wp core verify-checksums --path='/var/www/html' --allow-root"
+  register: checksum_verification
+  retries: 10
+  delay: 30
+  until: checksum_verification.stdout is search("Success")
+  changed_when: checksum_verification.rc != 0
+  ignore_errors: true
+
+- name: configure admin info
+  shell:
+    chdir: "/var/www/html"
+    cmd: |
+      wp core install --allow-root \
+          --url="{{ _domain }}" \
+          --title="{{ site_title }}" \
+          --admin_user="{{ wp_admin_user }}" \
+          --admin_email="{{ soa_email_address }}" \
+          --admin_password="{{ wp_admin_pass }}" \
+          --path="/var/www/html"
+
+- name: create .my.cnf file with mysql creds
+  ansible.builtin.copy:
+    dest: "/root/.my.cnf"
+    owner: root
+    group: root
+    mode: '0644'
+    content: |
+      [client]
+      user=root
+      password={{ mysql_root_password }}
+
+- name: run mysql secure installation
+  import_role:
+    name: securemysql
