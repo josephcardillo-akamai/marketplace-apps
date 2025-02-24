@@ -20,4 +20,29 @@
   loop:
     - { key: 'keyFile', file: 'privkey.pem' }
     - { key: 'certFile', file: 'fullchain.pem' }
+
+- name: ensure rewrite rules for all paths
+  blockinfile:
+    path: /usr/local/lsws/conf/vhosts/wordpress/vhconf.conf
+    marker: "# {mark} ANSIBLE MANAGED BLOCK - HTTPS REDIRECT"
+    block: |
+      context /phpmyadmin/ {
+        location                /var/www/phpmyadmin/
+        allowBrowse            1
+        rewrite  {
+          enable              1
+          rules              <<<END
+          RewriteCond %{HTTPS} !on
+          RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
+          END
+        }
+      }
+
+      rewrite  {
+        enable                  1
+        rules                   <<<END
+        RewriteCond %{HTTPS} !on
+        RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
+        END
+      }
   notify: reload lsws
