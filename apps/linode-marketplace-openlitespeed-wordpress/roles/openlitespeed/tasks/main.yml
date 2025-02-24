@@ -9,7 +9,7 @@
     - { url: 'https://raw.githubusercontent.com/litespeedtech/ls-cloud-image/master/Setup/wpimgsetup.sh', dest: '/tmp/wpimgsetup.sh' }
     - { url: 'https://raw.githubusercontent.com/litespeedtech/ls-cloud-image/master/Cloud-init/per-instance.sh', dest: '/tmp/per-instance.sh' }
 
-- name: execute wpimgsetup script
+- name: execute wpimgsetup script first attempt
   ansible.builtin.command:
     cmd: "bash /tmp/wpimgsetup.sh"
   register: wpimg_result
@@ -20,7 +20,40 @@
     php_memory_error: "{{ 'Allowed memory size' in wpimg_result.stderr }}"
   when: wpimg_result.stderr is defined
 
-- name: retry wpimgsetup script after memory error
+- name: cleanup after failed first attempt
+  block:
+    - name: remove partial wordpress installations
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - "/var/www/html"
+        - "/var/www/html.land"
+        - "/var/www/html/wp-config.php"
+        - "/var/www/phpmyadmin"
+
+    - name: stop mysql service
+      ansible.builtin.service:
+        name: mysql
+        state: stopped
+
+    - name: start mysql with skip-grant-tables
+      ansible.builtin.shell: |
+        mysqld_safe --skip-grant-tables &
+        sleep 5  # Give MySQL time to start
+
+    - name: reset mysql root password
+      ansible.builtin.shell: |
+        mysql -e "FLUSH PRIVILEGES; ALTER USER 'root'@'localhost' IDENTIFIED BY 'temporary'; FLUSH PRIVILEGES;"
+        mysqladmin -u root -ptemporary shutdown
+
+    - name: start mysql normally
+      ansible.builtin.service:
+        name: mysql
+        state: started
+  when: php_memory_error | default(false) | bool
+
+- name: retry wpimgsetup script after cleanup
   ansible.builtin.command:
     cmd: "bash /tmp/wpimgsetup.sh"
   when: php_memory_error | default(false) | bool
