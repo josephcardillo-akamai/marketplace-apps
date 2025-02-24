@@ -37,17 +37,25 @@
         name: mysql
         state: stopped
 
-    - name: start mysql with skip-grant-tables
-      ansible.builtin.shell: |
-        mysqld_safe --skip-grant-tables &
-        sleep 5  # Give MySQL time to start
+    - name: remove mysql data directory
+      ansible.builtin.file:
+        path: /var/lib/mysql
+        state: absent
 
-    - name: reset mysql root password
-      ansible.builtin.shell: |
-        mysql -e "FLUSH PRIVILEGES; ALTER USER 'root'@'localhost' IDENTIFIED BY 'temporary'; FLUSH PRIVILEGES;"
-        mysqladmin -u root -ptemporary shutdown
+    - name: recreate mysql data directory
+      ansible.builtin.file:
+        path: /var/lib/mysql
+        state: directory
+        owner: mysql
+        group: mysql
+        mode: '0750'
 
-    - name: start mysql normally
+    - name: initialize mysql data directory
+      ansible.builtin.command:
+        cmd: mysql_install_db --user=mysql --datadir=/var/lib/mysql
+      become: yes
+
+    - name: start mysql service
       ansible.builtin.service:
         name: mysql
         state: started
