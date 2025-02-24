@@ -9,12 +9,32 @@
     - { url: 'https://raw.githubusercontent.com/litespeedtech/ls-cloud-image/master/Setup/wpimgsetup.sh', dest: '/tmp/wpimgsetup.sh' }
     - { url: 'https://raw.githubusercontent.com/litespeedtech/ls-cloud-image/master/Cloud-init/per-instance.sh', dest: '/tmp/per-instance.sh' }
 
-- name: execute install scripts
+- name: execute wpimgsetup script
   ansible.builtin.command:
-    cmd: "bash {{ item }}"
-  loop:
-    - '/tmp/wpimgsetup.sh'
-    - '/tmp/per-instance.sh'
+    cmd: "bash /tmp/wpimgsetup.sh"
+  register: wpimg_result
+  ignore_errors: true
+
+- name: check if PHP memory error occurred
+  ansible.builtin.set_fact:
+    php_memory_error: "{{ 'Allowed memory size' in wpimg_result.stderr }}"
+  when: wpimg_result.stderr is defined
+
+- name: retry wpimgsetup script after memory error
+  ansible.builtin.command:
+    cmd: "bash /tmp/wpimgsetup.sh"
+  when: php_memory_error | default(false) | bool
+  register: wpimg_retry_result
+  failed_when: 
+    - wpimg_retry_result.rc != 0
+    - "'Allowed memory size' not in wpimg_retry_result.stderr"
+
+- name: execute per-instance script
+  ansible.builtin.command:
+    cmd: "bash /tmp/per-instance.sh"
+  when: 
+    - (wpimg_result.rc == 0) or 
+      (wpimg_retry_result is defined and wpimg_retry_result.rc == 0)
 
 - name: get litespeed password
   ansible.builtin.slurp:
@@ -56,16 +76,6 @@
     line: "{{ item.key }}: {{ item.value }}"
   loop: "{{ lookup('dict', passwords) }}"
 
-- name: Swap WordPress directories if necessary
-  become: yes
-  shell: |
-    if [ ! -f /var/www/html/wp-config.php ] && [ -d /var/www/html.land ]; then
-      rm -rf /var/www/html
-      mv /var/www/html.land /var/www/html
-    fi
-  args:
-    warn: false
-
 # verify wordpress is installed before configuring admin info
 - name: verify WordPress checksums
   command: bash -lc "wp core verify-checksums --path='/var/www/html' --allow-root"
@@ -87,7 +97,6 @@
           --admin_email="{{ soa_email_address }}" \
           --admin_password="{{ wp_admin_pass }}" \
           --path="/var/www/html"
-
 
 - name: create .my.cnf file with mysql creds
   ansible.builtin.copy:
