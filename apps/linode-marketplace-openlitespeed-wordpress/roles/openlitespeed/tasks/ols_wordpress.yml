@@ -10,10 +10,7 @@
 
 - name: execute OLS and WordPress setup scripts
   ansible.builtin.command:
-    cmd: "bash {{ item.script }}"
+    cmd: "bash {{ item }}"
   loop:
-    - { script: '/tmp/wpimgsetup.sh', name: 'OpenLiteSpeed and WordPress' }
-    - { script: '/tmp/per-instance.sh', name: 'per-instance configuration' }
-  register: script_result
-  loop_control:
-    label: "{{ item.name }} setup"
+    - /tmp/wpimgsetup.sh
+    - /tmp/per-instance.sh
