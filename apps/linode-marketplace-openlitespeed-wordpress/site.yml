@@ -1,5 +1,5 @@
 # linode ansible playbook
-
+---
 - name: openlitespeed deploy
   hosts: localhost
   connection: local

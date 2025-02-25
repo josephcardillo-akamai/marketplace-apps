@@ -12,7 +12,6 @@
       import_tasks: ../linode_helpers/roles/sudouser/tasks/main.yml
   
     - name: writing wordpress db password to vars
-      #blockinfile:
       lineinfile: 
         insertafter: EOF
         path: group_vars/linode/vars
