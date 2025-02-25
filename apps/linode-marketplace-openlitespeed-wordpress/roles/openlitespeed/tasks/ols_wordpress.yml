@@ -8,9 +8,10 @@
     - { url: 'https://raw.githubusercontent.com/litespeedtech/ls-cloud-image/master/Setup/wpimgsetup.sh', dest: '/tmp/wpimgsetup.sh' }
     - { url: 'https://raw.githubusercontent.com/litespeedtech/ls-cloud-image/master/Cloud-init/per-instance.sh', dest: '/tmp/per-instance.sh' }
 
-- name: execute OLS and WordPress setup scripts
+- name: execute OLS and WordPress setup script
   ansible.builtin.command:
-    cmd: "bash {{ item }}"
-  loop:
-    - /tmp/wpimgsetup.sh
-    - /tmp/per-instance.sh
+    cmd: "bash /tmp/wpimgsetup.sh"
+
+- name: execute per-instance setup script
+  ansible.builtin.command:
+    cmd: "bash /tmp/per-instance.sh"
