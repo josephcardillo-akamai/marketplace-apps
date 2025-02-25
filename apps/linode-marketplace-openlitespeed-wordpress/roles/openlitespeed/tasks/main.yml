@@ -1,7 +1,4 @@
 ---
-- name: Import download tasks
-  import_tasks: download.yml
-
 - name: Import OLS and WordPress tasks
   import_tasks: ols_wordpress.yml
 

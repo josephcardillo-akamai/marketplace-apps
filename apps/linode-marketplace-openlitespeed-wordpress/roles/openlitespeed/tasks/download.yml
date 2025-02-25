@@ -1,9 +1,0 @@
----
-- name: download install scripts
-  ansible.builtin.get_url:
-    url: "{{ item.url }}"
-    dest: "{{ item.dest }}"
-    mode: '0755'
-  loop:
-    - { url: 'https://raw.githubusercontent.com/litespeedtech/ls-cloud-image/master/Setup/wpimgsetup.sh', dest: '/tmp/wpimgsetup.sh' }
-    - { url: 'https://raw.githubusercontent.com/litespeedtech/ls-cloud-image/master/Cloud-init/per-instance.sh', dest: '/tmp/per-instance.sh' }
