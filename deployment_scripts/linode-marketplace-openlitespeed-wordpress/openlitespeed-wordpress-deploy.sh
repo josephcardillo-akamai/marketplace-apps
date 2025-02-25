@@ -75,7 +75,7 @@ EOF
 function run {
   # install dependencies
   apt-get update
-  apt-get install -y git python3 python3-pip
+  apt-get install -y git python3 python3-pip python3-venv
 
   # clone repo and set up ansible environment
   git -C /tmp clone ${GIT_REPO}
