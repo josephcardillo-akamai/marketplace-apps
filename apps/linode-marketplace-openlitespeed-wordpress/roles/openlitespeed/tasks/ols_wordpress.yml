@@ -11,7 +11,11 @@
 - name: execute OLS and WordPress setup script
   ansible.builtin.command:
     cmd: "bash /tmp/wpimgsetup.sh"
+  environment:
+    DEBIAN_FRONTEND: noninteractive
 
 - name: execute per-instance setup script
   ansible.builtin.command:
     cmd: "bash /tmp/per-instance.sh"
+  environment:
+    DEBIAN_FRONTEND: noninteractive
