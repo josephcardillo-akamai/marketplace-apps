@@ -41,14 +41,16 @@ function run {
   apt-get install -y git python3 python3-pip
 
   # clone repo and set up ansible environment
-  git -C /tmp clone ${GIT_REPO}
-  # for a single testing branch
-  # git -C /tmp clone -b ${BRANCH} ${GIT_REPO}
+  if [ "${TEST_REPO}" != "" ] && [ "${BRANCH}" != "" ]; then
+    git -C /tmp clone ${GIT_REPO} -b ${BRANCH}
+  else
+    git -C /tmp clone ${GIT_REPO}
+  fi
 
-  # venv
+  # set up python virtual environment
   cd ${WORK_DIR}/${MARKETPLACE_APP}
-  pip3 install virtualenv
-  python3 -m virtualenv env
+  apt install python3-venv -y
+  python3 -m venv env
   source env/bin/activate
   pip install pip --upgrade
   pip install -r requirements.txt

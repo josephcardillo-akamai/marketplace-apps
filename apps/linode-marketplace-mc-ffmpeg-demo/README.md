@@ -17,7 +17,7 @@ Please note: Since these apps deploy software for proprietary applications, a li
 * [Documentation](https://www.mainconcept.com/ffmpeg)
 
 ### Operating Systems
-Debian 11
+Ubuntu 24.04
 
 ### Documentation
 [Documentation](https://www.mainconcept.com/ffmpeg)
