@@ -7,8 +7,16 @@ trap "cleanup $? $LINENO" EXIT
 #<UDF name="disable_root" label="Disable root access over SSH?" oneOf="Yes,No" default="No">
 
 # git repo
-export GIT_REPO="https://github.com/akamai-compute-marketplace/marketplace-apps.git"
-export WORK_DIR="/tmp/marketplace-apps"
+# setting up git repo vars
+export TEST_REPO=""
+export BRANCH=""
+
+if [ "${TEST_REPO}" != "" ] && [ "${BRANCH}" != "" ]; then
+  export GIT_REPO="https://github.com/${TEST_REPO}/marketplace-apps.git"
+else
+  export GIT_REPO="https://github.com/akamai-compute-marketplace/marketplace-apps.git"
+fi
+export WORK_DIR="/tmp/marketplace-apps" 
 export MARKETPLACE_APP="apps/linode-marketplace-mc-ffmpeg-demo"
 
 # enable logging
