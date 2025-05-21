@@ -1,0 +1,11 @@
+[Interface]
+PrivateKey = {{ private_key.stdout }}
+
+Address = {{ server_private_ip }}
+ListenPort = {{ wireguard_port }}
+
+[Peer]
+PublicKey = {{ client_public_key }}
+AllowedIPs = {{ client_private_ip }}
+Endpoint = {{ client_public_ip }}:{{ wireguard_port }}
+PersistentKeepalive = 25
