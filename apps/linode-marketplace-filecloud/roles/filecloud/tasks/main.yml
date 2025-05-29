@@ -20,36 +20,6 @@
   import_role:
     name: filecloud
 
-
-# Apache ssl
-- name: stop apache2
-  systemd:
-    name: apache2
-    state: stopped
-
-- name: setting up ssl certificate
+- name: Install SSL
   import_role:
-    name: certbot_ssl
-
-- name: moving vhost template
-  template:
-    src: templates/vhost.j2
-    dest: "/etc/apache2/sites-available/{{ _domain }}.conf"
-    owner: root
-    group: root
-    mode: 0644
-
-- name: symlinking our vhost
-  file:
-    src: "/etc/apache2/sites-available/{{ _domain }}.conf"
-    dest: "/etc/apache2/sites-enabled/{{ _domain }}.conf"
-    owner: root
-    group: root
-    mode: 0644
-    state: link
-
-- name: disable apache default site
-  file:
-    path: /etc/apache2/sites-enabled/000-default.conf
-    state: absent
-  notify: start apache2
+    name: ssl

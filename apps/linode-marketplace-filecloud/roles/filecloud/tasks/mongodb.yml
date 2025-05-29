@@ -1,0 +1,6 @@
+---
+- name: Installing MongoDB and updating cache
+  apt:
+    name: mongodb-org
+    state: present
+    update_cache: yes
