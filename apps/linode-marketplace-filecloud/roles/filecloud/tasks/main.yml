@@ -1,25 +1,19 @@
 ---
 # FileCloud installation
 - name: Add MongoDB and FileCloud repositories
-  import_role:
-    name: repos
+  import_tasks: repos.yml
 
 - name: Install MongoDB
-  import_role:
-    name: mongodb
+  import_tasks: mongodb.yml
 
 - name: Install Apache
-  import_role:
-    name: apache
+  import_tasks: apache.yml
 
 - name: Install PHP
-  import_role:
-    name: php
+  import_tasks: php.yml
 
 - name: Install and Configure FileCloud
-  import_role:
-    name: filecloud
+  import_tasks: filecloud.yml
 
 - name: Install SSL
-  import_role:
-    name: ssl
+  import_tasks: ssl.yml
