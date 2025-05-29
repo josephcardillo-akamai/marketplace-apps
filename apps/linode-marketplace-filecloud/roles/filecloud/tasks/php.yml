@@ -26,3 +26,5 @@
     - php8.3-sqlite3 
     - php-json 
     - libapache2-mod-security2
+    - libapache2-mod-php8.3
+    state: present

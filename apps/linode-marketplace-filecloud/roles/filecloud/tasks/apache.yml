@@ -6,25 +6,35 @@
     - pigz
     state: present
 
-- name: moving vhost template
+- name: Enable Apache modules
+  apache2_module:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - rewrite
+    - headers
+    - ssl
+    - socache_shmcb
+    - php8.3
+  notify: restart apache
+
+- name: Configure Apache virtual host
   template:
-    src: templates/vhost.j2
-    dest: "/etc/apache2/sites-available/{{ _domain }}.conf"
+    src: vhost.conf.j2
+    dest: /etc/apache2/sites-available/{{ _domain }}.conf
     owner: root
     group: root
-    mode: 0644
+    mode: '0644'
 
-- name: symlinking our vhost
-  file:
-    src: "/etc/apache2/sites-available/{{ _domain }}.conf"
-    dest: "/etc/apache2/sites-enabled/{{ _domain }}.conf"
-    owner: root
-    group: root
-    mode: 0644
-    state: link
-
-- name: disable apache default site
+- name: Disable default Apache site
   file:
     path: /etc/apache2/sites-enabled/000-default.conf
     state: absent
-  notify: start apache2
+  notify: restart apache
+
+- name: Enable FileCloud site
+  file:
+    src: /etc/apache2/sites-available/{{ _domain }}.conf
+    dest: /etc/apache2/sites-enabled/{{ _domain }}.conf
+    state: link
+  notify: restart apache

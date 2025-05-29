@@ -1,0 +1,28 @@
+<VirtualHost *:80>
+    ServerAdmin {{ soa_email_address | default('admin@localhost') }}
+    DocumentRoot /var/www/html
+    ServerName {{ _domain }}
+
+    RewriteEngine On
+    RewriteCond %{HTTPS} off
+    RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+</VirtualHost>
+
+<VirtualHost *:443>
+    ServerAdmin {{ soa_email_address | default('admin@localhost') }}
+    DocumentRoot /var/www/html
+    ServerName {{ _domain }}
+
+    DirectoryIndex index.php
+
+    <Directory /var/www/html>
+        Options Indexes FollowSymLinks MultiViews
+        AllowOverride All
+        Order allow,deny
+        allow from all
+    </Directory>
+
+    ErrorLog ${APACHE_LOG_DIR}/error.log
+    LogLevel warn
+    CustomLog ${APACHE_LOG_DIR}/access.log combined
+</VirtualHost> 
