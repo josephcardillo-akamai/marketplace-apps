@@ -1,3 +1,4 @@
+---
 # Solr installation
 - name: installing solr
   shell:

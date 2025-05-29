@@ -1,0 +1,4 @@
+--- 
+- name: setting up ssl certificate
+  import_role:
+    name: certbot_ssl

@@ -1,0 +1,29 @@
+---
+- name: Adding Keys for MongoDB
+  get_url:
+      url: https://pgp.mongodb.com/server-7.0.asc
+      dest: /usr/share/keyrings/mongodb-server-7.0.asc
+      mode: '0644'
+      force: true 
+
+- name: adding mongodb repo
+  apt_repository:
+    repo: "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-7.0.asc ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/7.0 multiverse"
+    state: present
+
+- name: Adding Keys for FileCloud
+  get_url:
+      url: https://repo.filecloudlabs.com/static/pgp/filecloud.asc
+      dest: /usr/share/keyrings/filecloud.asc
+      mode: '0644'
+      force: true
+
+- name: adding filecloud repo
+  apt_repository:
+    repo: "deb [ arch=amd64 signed-by=/usr/share/keyrings/filecloud.asc ] https://repo.filecloudlabs.com/apt/ubuntu jammy/filecloud/23.242 main"
+    state: present
+
+- name: running apt-get update
+  apt:
+    update_cache: true
+    upgrade: true

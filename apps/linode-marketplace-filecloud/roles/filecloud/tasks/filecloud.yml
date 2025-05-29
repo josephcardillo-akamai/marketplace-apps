@@ -1,0 +1,50 @@
+---
+- name: Installing FileCloud
+  shell:
+    cmd: ACCEPT_EULA=Y  apt-get install filecloud -y  
+
+# reset admin password
+- name: run PHP script to reset admin password
+  command: 'php resetadminpw.php -p "{{ filecloud_admin_password }}"'
+  args:
+    chdir: '/var/www/html/resources/backup/'
+
+# configure filecloud
+- name: logging into filecloud
+  uri:
+    url: http://{{ ansible_default_ipv4.address }}/admin/adminlogin?adminuser=admin&adminpassword={{ filecloud_admin_password }}
+    method: GET
+    body_format: form-urlencoded
+    status_code: 200
+    force_basic_auth: yes
+  register: login_cookies
+
+- name: saving cookies to variable
+  set_fact:
+    login: "{{ login_cookies.cookies }}"
+
+- name: extracting tonidocloud_ah value
+  set_fact:
+    tonidocloud_ah: "{{ login['tonidocloud-ah'] }}"
+
+- name: extracting tonidocloud_as value
+  set_fact:
+    tonidocloud_as: "{{ login['tonidocloud-as'] }}"
+
+- name: extracting x_xsrf_token value
+  set_fact:
+    x_xsrf_token: "{{ login['X-XSRF-TOKEN'] }}"
+
+- name: configuring GEO IP
+  uri:
+    url: http://{{ ansible_default_ipv4.address }}/admin/
+    method: POST
+    headers:
+      Content-Type: application/x-www-form-urlencoded
+      Cookie: X-XSRF-TOKEN-admin={{ x_xsrf_token }}; X-XSRF-TOKEN={{ x_xsrf_token }}; tonidocloud-au=admin; tonidocloud-as={{ tonidocloud_as }}; tonidocloud-ah={{ tonidocloud_ah }}; tonidocloud-ah={{ tonidocloud_ah }}; tonidocloud-as={{ tonidocloud_as }}; tonidocloud-au=admin
+    body_format: form-urlencoded
+    body:
+      op: "setconfigsetting"
+      count: "1"
+      param0: "TONIDOCLOUD_GEOIP_ENABLED"
+      value0: "1"
