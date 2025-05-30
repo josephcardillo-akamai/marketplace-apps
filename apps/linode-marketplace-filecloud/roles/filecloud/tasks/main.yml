@@ -9,11 +9,11 @@
 - name: Install Apache
   import_tasks: apache.yml
 
+- name: Install SSL
+  import_tasks: ssl.yml
+
 - name: Install PHP
   import_tasks: php.yml
 
 - name: Install and Configure FileCloud
   import_tasks: filecloud.yml
-
-- name: Install SSL
-  import_tasks: ssl.yml

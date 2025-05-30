@@ -3,7 +3,7 @@
   shell:
     cmd: ACCEPT_EULA=Y  apt-get install filecloud -y  
 
-# reset admin password
+reset admin password
 - name: run PHP script to reset admin password
   command: 'php resetadminpw.php -p "{{ filecloud_admin_password }}"'
   args:
@@ -48,3 +48,43 @@
       count: "1"
       param0: "TONIDOCLOUD_GEOIP_ENABLED"
       value0: "1"
+
+- name: Remove FileCloud install folder
+  file:
+    path: /var/www/html/install
+    state: absent
+
+- name: Set FileCloud admin email
+  lineinfile:
+    path: /var/www/html/config/cloudconfig.php
+    regexp: '^TONIDOCLOUD_REPLY_TO_EMAIL'
+    line: "TONIDOCLOUD_REPLY_TO_EMAIL = '{{ soa_email_address }}';"
+    create: true
+
+- name: Set FileCloud reply from email
+  lineinfile:
+    path: /var/www/html/config/cloudconfig.php
+    regexp: '^TONIDOCLOUD_REPLY_FROM_EMAIL'
+    line: "TONIDOCLOUD_REPLY_FROM_EMAIL = '{{ soa_email_address }}';"
+    create: true
+
+- name: Set FileCloud server URL
+  lineinfile:
+    path: /var/www/html/config/cloudconfig.php
+    regexp: '^TONIDOCLOUD_SERVER_URL'
+    line: "TONIDOCLOUD_SERVER_URL = 'https://{{ _domain }}';"
+    create: true
+
+- name: Set FileCloud server URL
+  lineinfile:
+    path: /var/www/html/config/cloudconfig.php
+    regexp: '^TONIDOCLOUD_SERVER_URL'
+    line: "TONIDOCLOUD_SERVER_URL = 'https://{{ _domain }}';"
+    create: true
+
+- name: Enable secure cookie in FileCloud config
+  lineinfile:
+    path: /var/www/html/config/cloudconfig.php
+    regexp: '^TONIDOCLOUD_SECURE_COOKIE'
+    line: "TONIDOCLOUD_SECURE_COOKIE = 1;"
+    create: true

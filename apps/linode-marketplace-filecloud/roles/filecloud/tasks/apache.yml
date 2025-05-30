@@ -15,7 +15,6 @@
     - headers
     - ssl
     - socache_shmcb
-    - php8.3
   notify: restart apache
 
 - name: Configure Apache virtual host

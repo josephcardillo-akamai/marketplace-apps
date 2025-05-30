@@ -1,0 +1,11 @@
+# sudo username
+username: joe
+webserver_stack: lamp
+default_dns: 45-56-119-39.ip.linodeusercontent.com
+subdomain: www
+soa_email_address: joseph.s.cardillo@gmail.com
+mode: production
+password: PrpVXLGOYGh6NKwlmaSteZB59
+
+filecloud_admin_password: C2U2CEhnGN98FzZU4IdJgUbUZ
+_domain: 45-56-119-39.ip.linodeusercontent.com
