@@ -31,7 +31,7 @@
       include_role:
         name: "{{ item }}"
       loop:
-        #- common
+        - common
         - filecloud
-        #- post
+        - post
       when: "mode == 'production'"
