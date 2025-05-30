@@ -1,0 +1,230 @@
+Using /tmp/marketplace-apps/apps/linode-marketplace-filecloud/ansible.cfg as config file
+[WARNING]: No inventory was parsed, only implicit localhost is available
+[WARNING]: provided hosts list is empty, only localhost is available. Note that
+the implicit localhost does not match 'all'
+
+PLAY [Install FileCloud] *******************************************************
+
+TASK [Gathering Facts] *********************************************************
+ok: [localhost]
+
+TASK [run roles] ***************************************************************
+skipping: [localhost] => (item=common)  => {"ansible_loop_var": "item", "changed": false, "item": "common", "skip_reason": "Conditional result was False"}
+skipping: [localhost] => (item=filecloud)  => {"ansible_loop_var": "item", "changed": false, "item": "filecloud", "skip_reason": "Conditional result was False"}
+skipping: [localhost] => (item=post)  => {"ansible_loop_var": "item", "changed": false, "item": "post", "skip_reason": "Conditional result was False"}
+
+TASK [setting staging env] *****************************************************
+skipping: [localhost] => {"changed": false, "skip_reason": "Conditional result was False"}
+
+TASK [obtain temp token from auth server] **************************************
+skipping: [localhost] => {"changed": false, "skip_reason": "Conditional result was False"}
+
+TASK [status check] ************************************************************
+skipping: [localhost] => {}
+
+TASK [sending deployment status] ***********************************************
+skipping: [localhost] => {"changed": false, "skip_reason": "Conditional result was False"}
+
+TASK [running app normally] ****************************************************
+
+TASK [filecloud : Enable Apache modules] ***************************************
+[WARNING]: The loop variable 'item' is already in use. You should set the
+`loop_var` value in the `loop_control` option for the task to something else to
+avoid variable collisions and unexpected behavior.
+ok: [localhost] => (item=rewrite) => {"ansible_loop_var": "item", "changed": false, "item": "rewrite", "result": "Module rewrite enabled"}
+ok: [localhost] => (item=headers) => {"ansible_loop_var": "item", "changed": false, "item": "headers", "result": "Module headers enabled"}
+ok: [localhost] => (item=ssl) => {"ansible_loop_var": "item", "changed": false, "item": "ssl", "result": "Module ssl enabled"}
+ok: [localhost] => (item=socache_shmcb) => {"ansible_loop_var": "item", "changed": false, "item": "socache_shmcb", "result": "Module socache_shmcb enabled"}
+
+TASK [filecloud : Configure Apache virtual host] *******************************
+ok: [localhost] => {"changed": false, "checksum": "2627a4d5b3254bc42349ea5f51c1a2a67697554f", "dest": "/etc/apache2/sites-available/45-56-119-39.ip.linodeusercontent.com.conf", "gid": 0, "group": "root", "mode": "0644", "owner": "root", "path": "/etc/apache2/sites-available/45-56-119-39.ip.linodeusercontent.com.conf", "size": 759, "state": "file", "uid": 0}
+
+TASK [filecloud : Disable default Apache site] *********************************
+ok: [localhost] => {"changed": false, "path": "/etc/apache2/sites-enabled/000-default.conf", "state": "absent"}
+
+TASK [filecloud : Enable FileCloud site] ***************************************
+ok: [localhost] => {"changed": false, "dest": "/etc/apache2/sites-enabled/45-56-119-39.ip.linodeusercontent.com.conf", "gid": 0, "group": "root", "mode": "0777", "owner": "root", "size": 71, "src": "/etc/apache2/sites-available/45-56-119-39.ip.linodeusercontent.com.conf", "state": "link", "uid": 0}
+
+TASK [filecloud : Installing PHP 8.3 and dependencies] *************************
+ok: [localhost] => {"cache_update_time": 1748588836, "cache_updated": false, "changed": false}
+
+TASK [filecloud : Installing FileCloud] ****************************************
+fatal: [localhost]: FAILED! => {"changed": true, "cmd": "ACCEPT_EULA=Y  apt-get install filecloud -y", "delta": "0:00:00.120013", "end": "2025-05-30 14:38:51.109998", "msg": "non-zero return code", "rc": 100, "start": "2025-05-30 14:38:50.989985", "stderr": "E: Could not get lock /var/lib/dpkg/lock-frontend. It is held by process 62003 (apt-get)\nE: Unable to acquire the dpkg frontend lock (/var/lib/dpkg/lock-frontend), is another process using it?", "stderr_lines": ["E: Could not get lock /var/lib/dpkg/lock-frontend. It is held by process 62003 (apt-get)", "E: Unable to acquire the dpkg frontend lock (/var/lib/dpkg/lock-frontend), is another process using it?"], "stdout": "", "stdout_lines": []}
+
+NO MORE HOSTS LEFT *************************************************************
+
+PLAY RECAP *********************************************************************
+localhost                  : ok=6    changed=0    unreachable=0    failed=1    skipped=5    rescued=0    ignored=0   
+
+Using /tmp/marketplace-apps/apps/linode-marketplace-filecloud/ansible.cfg as config file
+[WARNING]: No inventory was parsed, only implicit localhost is available
+[WARNING]: provided hosts list is empty, only localhost is available. Note that
+the implicit localhost does not match 'all'
+
+PLAY [Install FileCloud] *******************************************************
+
+TASK [Gathering Facts] *********************************************************
+ok: [localhost]
+
+TASK [run roles] ***************************************************************
+skipping: [localhost] => (item=common)  => {"ansible_loop_var": "item", "changed": false, "item": "common", "skip_reason": "Conditional result was False"}
+skipping: [localhost] => (item=filecloud)  => {"ansible_loop_var": "item", "changed": false, "item": "filecloud", "skip_reason": "Conditional result was False"}
+skipping: [localhost] => (item=post)  => {"ansible_loop_var": "item", "changed": false, "item": "post", "skip_reason": "Conditional result was False"}
+
+TASK [setting staging env] *****************************************************
+skipping: [localhost] => {"changed": false, "skip_reason": "Conditional result was False"}
+
+TASK [obtain temp token from auth server] **************************************
+skipping: [localhost] => {"changed": false, "skip_reason": "Conditional result was False"}
+
+TASK [status check] ************************************************************
+skipping: [localhost] => {}
+
+TASK [sending deployment status] ***********************************************
+skipping: [localhost] => {"changed": false, "skip_reason": "Conditional result was False"}
+
+TASK [running app normally] ****************************************************
+[WARNING]: file /tmp/marketplace-apps/apps/linode-marketplace-
+filecloud/roles/filecloud/tasks/apache.yml is empty and had no tasks to include
+[WARNING]: file /tmp/marketplace-apps/apps/linode-marketplace-
+filecloud/roles/filecloud/tasks/php.yml is empty and had no tasks to include
+
+TASK [filecloud : Installing FileCloud] ****************************************
+changed: [localhost] => {"changed": true, "cmd": "ACCEPT_EULA=Y  apt-get install filecloud -y", "delta": "0:00:00.663140", "end": "2025-05-30 14:39:45.943971", "rc": 0, "start": "2025-05-30 14:39:45.280831", "stderr": "", "stderr_lines": [], "stdout": "Reading package lists...\nBuilding dependency tree...\nReading state information...\nfilecloud is already the newest version (23.242.0.29412).\n0 upgraded, 0 newly installed, 0 to remove and 6 not upgraded.", "stdout_lines": ["Reading package lists...", "Building dependency tree...", "Reading state information...", "filecloud is already the newest version (23.242.0.29412).", "0 upgraded, 0 newly installed, 0 to remove and 6 not upgraded."]}
+
+TASK [filecloud : run PHP script to reset admin password] **********************
+changed: [localhost] => {"changed": true, "cmd": ["php", "resetadminpw.php", "-p", "C2U2CEhnGN98FzZU4IdJgUbUZ"], "delta": "0:00:00.455647", "end": "2025-05-30 14:39:46.613303", "rc": 0, "start": "2025-05-30 14:39:46.157656", "stderr": "", "stderr_lines": [], "stdout": "Updating password for default site\nReset OK.", "stdout_lines": ["Updating password for default site", "Reset OK."]}
+
+TASK [filecloud : logging into filecloud] **************************************
+fatal: [localhost]: FAILED! => {"changed": false, "elapsed": 0, "msg": "Status code was -1 and not [200]: Request failed: <urlopen error [SSL: WRONG_VERSION_NUMBER] wrong version number (_ssl.c:1007)>", "redirected": false, "status": -1, "url": "http://45.56.119.39/admin/adminlogin?adminuser=admin&adminpassword=C2U2CEhnGN98FzZU4IdJgUbUZ"}
+
+NO MORE HOSTS LEFT *************************************************************
+
+PLAY RECAP *********************************************************************
+localhost                  : ok=3    changed=2    unreachable=0    failed=1    skipped=5    rescued=0    ignored=0   
+
+Using /tmp/marketplace-apps/apps/linode-marketplace-filecloud/ansible.cfg as config file
+[WARNING]: No inventory was parsed, only implicit localhost is available
+[WARNING]: provided hosts list is empty, only localhost is available. Note that
+the implicit localhost does not match 'all'
+
+PLAY [Install FileCloud] *******************************************************
+
+TASK [Gathering Facts] *********************************************************
+ok: [localhost]
+
+TASK [run roles] ***************************************************************
+skipping: [localhost] => (item=common)  => {"ansible_loop_var": "item", "changed": false, "item": "common", "skip_reason": "Conditional result was False"}
+skipping: [localhost] => (item=filecloud)  => {"ansible_loop_var": "item", "changed": false, "item": "filecloud", "skip_reason": "Conditional result was False"}
+skipping: [localhost] => (item=post)  => {"ansible_loop_var": "item", "changed": false, "item": "post", "skip_reason": "Conditional result was False"}
+
+TASK [setting staging env] *****************************************************
+skipping: [localhost] => {"changed": false, "skip_reason": "Conditional result was False"}
+
+TASK [obtain temp token from auth server] **************************************
+skipping: [localhost] => {"changed": false, "skip_reason": "Conditional result was False"}
+
+TASK [status check] ************************************************************
+skipping: [localhost] => {}
+
+TASK [sending deployment status] ***********************************************
+skipping: [localhost] => {"changed": false, "skip_reason": "Conditional result was False"}
+
+TASK [running app normally] ****************************************************
+[WARNING]: file /tmp/marketplace-apps/apps/linode-marketplace-
+filecloud/roles/filecloud/tasks/apache.yml is empty and had no tasks to include
+[WARNING]: file /tmp/marketplace-apps/apps/linode-marketplace-
+filecloud/roles/filecloud/tasks/php.yml is empty and had no tasks to include
+
+TASK [filecloud : logging into filecloud] **************************************
+fatal: [localhost]: FAILED! => {"changed": false, "elapsed": 0, "msg": "Status code was -1 and not [200]: Request failed: <urlopen error [SSL: WRONG_VERSION_NUMBER] wrong version number (_ssl.c:1007)>", "redirected": false, "status": -1, "url": "https://45.56.119.39/admin/adminlogin?adminuser=admin&adminpassword=C2U2CEhnGN98FzZU4IdJgUbUZ"}
+
+NO MORE HOSTS LEFT *************************************************************
+
+PLAY RECAP *********************************************************************
+localhost                  : ok=1    changed=0    unreachable=0    failed=1    skipped=5    rescued=0    ignored=0   
+
+Using /tmp/marketplace-apps/apps/linode-marketplace-filecloud/ansible.cfg as config file
+[WARNING]: No inventory was parsed, only implicit localhost is available
+[WARNING]: provided hosts list is empty, only localhost is available. Note that
+the implicit localhost does not match 'all'
+
+PLAY [Install FileCloud] *******************************************************
+
+TASK [Gathering Facts] *********************************************************
+ok: [localhost]
+
+TASK [run roles] ***************************************************************
+skipping: [localhost] => (item=common)  => {"ansible_loop_var": "item", "changed": false, "item": "common", "skip_reason": "Conditional result was False"}
+skipping: [localhost] => (item=filecloud)  => {"ansible_loop_var": "item", "changed": false, "item": "filecloud", "skip_reason": "Conditional result was False"}
+skipping: [localhost] => (item=post)  => {"ansible_loop_var": "item", "changed": false, "item": "post", "skip_reason": "Conditional result was False"}
+
+TASK [setting staging env] *****************************************************
+skipping: [localhost] => {"changed": false, "skip_reason": "Conditional result was False"}
+
+TASK [obtain temp token from auth server] **************************************
+skipping: [localhost] => {"changed": false, "skip_reason": "Conditional result was False"}
+
+TASK [status check] ************************************************************
+skipping: [localhost] => {}
+
+TASK [sending deployment status] ***********************************************
+skipping: [localhost] => {"changed": false, "skip_reason": "Conditional result was False"}
+
+TASK [running app normally] ****************************************************
+[WARNING]: file /tmp/marketplace-apps/apps/linode-marketplace-
+filecloud/roles/filecloud/tasks/apache.yml is empty and had no tasks to include
+[WARNING]: file /tmp/marketplace-apps/apps/linode-marketplace-
+filecloud/roles/filecloud/tasks/php.yml is empty and had no tasks to include
+
+TASK [certbot_ssl : install apache certbot plugin] *****************************
+included: /tmp/marketplace-apps/apps/linode_helpers/roles/certbot_ssl/tasks/apache-certbot.yml for localhost
+
+TASK [certbot_ssl : install python3-certbot-apache] ****************************
+changed: [localhost] => {"cache_update_time": 1748588836, "cache_updated": false, "changed": true, "stderr": "", "stderr_lines": [], "stdout": "Reading package lists...\nBuilding dependency tree...\nReading state information...\nThe following additional packages will be installed:\n  augeas-lenses certbot libaugeas0 python3-acme python3-augeas python3-certbot\n  python3-configargparse python3-icu python3-josepy python3-parsedatetime\n  python3-rfc3339 python3-zope.component python3-zope.event\n  python3-zope.hookable\nSuggested packages:\n  augeas-doc python-certbot-doc python3-certbot-nginx augeas-tools\n  python-acme-doc python-certbot-apache-doc\nThe following NEW packages will be installed:\n  augeas-lenses certbot libaugeas0 python3-acme python3-augeas python3-certbot\n  python3-certbot-apache python3-configargparse python3-icu python3-josepy\n  python3-parsedatetime python3-rfc3339 python3-zope.component\n  python3-zope.event python3-zope.hookable\n0 upgraded, 15 newly installed, 0 to remove and 6 not upgraded.\nNeed to get 1514 kB of archives.\nAfter this operation, 7490 kB of additional disk space will be used.\nGet:1 http://mirrors.linode.com/ubuntu jammy/universe amd64 augeas-lenses all 1.13.0-1 [321 kB]\nGet:2 http://mirrors.linode.com/ubuntu jammy/universe amd64 libaugeas0 amd64 1.13.0-1 [200 kB]\nGet:3 http://mirrors.linode.com/ubuntu jammy/universe amd64 python3-josepy all 1.10.0-1 [22.0 kB]\nGet:4 http://mirrors.linode.com/ubuntu jammy/main amd64 python3-rfc3339 all 1.1-3 [7110 B]\nGet:5 http://mirrors.linode.com/ubuntu jammy-updates/universe amd64 python3-acme all 1.21.0-1ubuntu0.1 [36.4 kB]\nGet:6 http://mirrors.linode.com/ubuntu jammy/universe amd64 python3-augeas all 0.5.0-1.1 [9124 B]\nGet:7 http://mirrors.linode.com/ubuntu jammy/universe amd64 python3-configargparse all 1.5.3-1 [26.9 kB]\nGet:8 http://mirrors.linode.com/ubuntu jammy/universe amd64 python3-parsedatetime all 2.6-2 [32.9 kB]\nGet:9 http://mirrors.linode.com/ubuntu jammy/universe amd64 python3-zope.hookable amd64 5.1.0-1build1 [11.6 kB]\nGet:10 http://mirrors.linode.com/ubuntu jammy/universe amd64 python3-zope.event all 4.4-3 [8180 B]\nGet:11 http://mirrors.linode.com/ubuntu jammy/universe amd64 python3-zope.component all 4.3.0-3 [38.3 kB]\nGet:12 http://mirrors.linode.com/ubuntu jammy/universe amd64 python3-certbot all 1.21.0-1build1 [175 kB]\nGet:13 http://mirrors.linode.com/ubuntu jammy/universe amd64 certbot all 1.21.0-1build1 [21.3 kB]\nGet:14 http://mirrors.linode.com/ubuntu jammy/universe amd64 python3-certbot-apache all 1.21.0-1 [64.2 kB]\nGet:15 http://mirrors.linode.com/ubuntu jammy/main amd64 python3-icu amd64 2.8.1-0ubuntu2 [540 kB]\nPreconfiguring packages ...\nFetched 1514 kB in 2s (1007 kB/s)\nSelecting previously unselected package augeas-lenses.\r\n(Reading database ... \r(Reading database ... 5%\r(Reading database ... 10%\r(Reading database ... 15%\r(Reading database ... 20%\r(Reading database ... 25%\r(Reading database ... 30%\r(Reading database ... 35%\r(Reading database ... 40%\r(Reading database ... 45%\r(Reading database ... 50%\r(Reading database ... 55%\r(Reading database ... 60%\r(Reading database ... 65%\r(Reading database ... 70%\r(Reading database ... 75%\r(Reading database ... 80%\r(Reading database ... 85%\r(Reading database ... 90%\r(Reading database ... 95%\r(Reading database ... 100%\r(Reading database ... 233147 files and directories currently installed.)\r\nPreparing to unpack .../00-augeas-lenses_1.13.0-1_all.deb ...\r\nUnpacking augeas-lenses (1.13.0-1) ...\r\nSelecting previously unselected package libaugeas0:amd64.\r\nPreparing to unpack .../01-libaugeas0_1.13.0-1_amd64.deb ...\r\nUnpacking libaugeas0:amd64 (1.13.0-1) ...\r\nSelecting previously unselected package python3-josepy.\r\nPreparing to unpack .../02-python3-josepy_1.10.0-1_all.deb ...\r\nUnpacking python3-josepy (1.10.0-1) ...\r\nSelecting previously unselected package python3-rfc3339.\r\nPreparing to unpack .../03-python3-rfc3339_1.1-3_all.deb ...\r\nUnpacking python3-rfc3339 (1.1-3) ...\r\nSelecting previously unselected package python3-acme.\r\nPreparing to unpack .../04-python3-acme_1.21.0-1ubuntu0.1_all.deb ...\r\nUnpacking python3-acme (1.21.0-1ubuntu0.1) ...\r\nSelecting previously unselected package python3-augeas.\r\nPreparing to unpack .../05-python3-augeas_0.5.0-1.1_all.deb ...\r\nUnpacking python3-augeas (0.5.0-1.1) ...\r\nSelecting previously unselected package python3-configargparse.\r\nPreparing to unpack .../06-python3-configargparse_1.5.3-1_all.deb ...\r\nUnpacking python3-configargparse (1.5.3-1) ...\r\nSelecting previously unselected package python3-parsedatetime.\r\nPreparing to unpack .../07-python3-parsedatetime_2.6-2_all.deb ...\r\nUnpacking python3-parsedatetime (2.6-2) ...\r\nSelecting previously unselected package python3-zope.hookable.\r\nPreparing to unpack .../08-python3-zope.hookable_5.1.0-1build1_amd64.deb ...\r\nUnpacking python3-zope.hookable (5.1.0-1build1) ...\r\nSelecting previously unselected package python3-zope.event.\r\nPreparing to unpack .../09-python3-zope.event_4.4-3_all.deb ...\r\nUnpacking python3-zope.event (4.4-3) ...\r\nSelecting previously unselected package python3-zope.component.\r\nPreparing to unpack .../10-python3-zope.component_4.3.0-3_all.deb ...\r\nUnpacking python3-zope.component (4.3.0-3) ...\r\nSelecting previously unselected package python3-certbot.\r\nPreparing to unpack .../11-python3-certbot_1.21.0-1build1_all.deb ...\r\nUnpacking python3-certbot (1.21.0-1build1) ...\r\nSelecting previously unselected package certbot.\r\nPreparing to unpack .../12-certbot_1.21.0-1build1_all.deb ...\r\nUnpacking certbot (1.21.0-1build1) ...\r\nSelecting previously unselected package python3-certbot-apache.\r\nPreparing to unpack .../13-python3-certbot-apache_1.21.0-1_all.deb ...\r\nUnpacking python3-certbot-apache (1.21.0-1) ...\r\nSelecting previously unselected package python3-icu.\r\nPreparing to unpack .../14-python3-icu_2.8.1-0ubuntu2_amd64.deb ...\r\nUnpacking python3-icu (2.8.1-0ubuntu2) ...\r\nSetting up python3-configargparse (1.5.3-1) ...\r\nSetting up python3-parsedatetime (2.6-2) ...\r\nSetting up python3-icu (2.8.1-0ubuntu2) ...\r\nSetting up augeas-lenses (1.13.0-1) ...\r\nSetting up python3-zope.event (4.4-3) ...\r\nSetting up python3-zope.hookable (5.1.0-1build1) ...\r\nSetting up libaugeas0:amd64 (1.13.0-1) ...\r\nSetting up python3-josepy (1.10.0-1) ...\r\nSetting up python3-augeas (0.5.0-1.1) ...\r\nSetting up python3-rfc3339 (1.1-3) ...\r\nSetting up python3-zope.component (4.3.0-3) ...\r\nSetting up python3-acme (1.21.0-1ubuntu0.1) ...\r\nSetting up python3-certbot (1.21.0-1build1) ...\r\nSetting up certbot (1.21.0-1build1) ...\r\nCreated symlink /etc/systemd/system/timers.target.wants/certbot.timer -> /lib/systemd/system/certbot.timer.\r\nSetting up python3-certbot-apache (1.21.0-1) ...\r\nProcessing triggers for man-db (2.10.2-1) ...\r\nProcessing triggers for libc-bin (2.35-0ubuntu3.10) ...\r\nNEEDRESTART-VER: 3.5\nNEEDRESTART-KCUR: 5.15.0-130-generic\nNEEDRESTART-KEXP: 5.15.0-140-generic\nNEEDRESTART-KSTA: 3\nNEEDRESTART-SVC: dbus.service\nNEEDRESTART-SVC: networkd-dispatcher.service\nNEEDRESTART-SVC: systemd-logind.service\nNEEDRESTART-SVC: unattended-upgrades.service\nNEEDRESTART-SVC: user@0.service\n", "stdout_lines": ["Reading package lists...", "Building dependency tree...", "Reading state information...", "The following additional packages will be installed:", "  augeas-lenses certbot libaugeas0 python3-acme python3-augeas python3-certbot", "  python3-configargparse python3-icu python3-josepy python3-parsedatetime", "  python3-rfc3339 python3-zope.component python3-zope.event", "  python3-zope.hookable", "Suggested packages:", "  augeas-doc python-certbot-doc python3-certbot-nginx augeas-tools", "  python-acme-doc python-certbot-apache-doc", "The following NEW packages will be installed:", "  augeas-lenses certbot libaugeas0 python3-acme python3-augeas python3-certbot", "  python3-certbot-apache python3-configargparse python3-icu python3-josepy", "  python3-parsedatetime python3-rfc3339 python3-zope.component", "  python3-zope.event python3-zope.hookable", "0 upgraded, 15 newly installed, 0 to remove and 6 not upgraded.", "Need to get 1514 kB of archives.", "After this operation, 7490 kB of additional disk space will be used.", "Get:1 http://mirrors.linode.com/ubuntu jammy/universe amd64 augeas-lenses all 1.13.0-1 [321 kB]", "Get:2 http://mirrors.linode.com/ubuntu jammy/universe amd64 libaugeas0 amd64 1.13.0-1 [200 kB]", "Get:3 http://mirrors.linode.com/ubuntu jammy/universe amd64 python3-josepy all 1.10.0-1 [22.0 kB]", "Get:4 http://mirrors.linode.com/ubuntu jammy/main amd64 python3-rfc3339 all 1.1-3 [7110 B]", "Get:5 http://mirrors.linode.com/ubuntu jammy-updates/universe amd64 python3-acme all 1.21.0-1ubuntu0.1 [36.4 kB]", "Get:6 http://mirrors.linode.com/ubuntu jammy/universe amd64 python3-augeas all 0.5.0-1.1 [9124 B]", "Get:7 http://mirrors.linode.com/ubuntu jammy/universe amd64 python3-configargparse all 1.5.3-1 [26.9 kB]", "Get:8 http://mirrors.linode.com/ubuntu jammy/universe amd64 python3-parsedatetime all 2.6-2 [32.9 kB]", "Get:9 http://mirrors.linode.com/ubuntu jammy/universe amd64 python3-zope.hookable amd64 5.1.0-1build1 [11.6 kB]", "Get:10 http://mirrors.linode.com/ubuntu jammy/universe amd64 python3-zope.event all 4.4-3 [8180 B]", "Get:11 http://mirrors.linode.com/ubuntu jammy/universe amd64 python3-zope.component all 4.3.0-3 [38.3 kB]", "Get:12 http://mirrors.linode.com/ubuntu jammy/universe amd64 python3-certbot all 1.21.0-1build1 [175 kB]", "Get:13 http://mirrors.linode.com/ubuntu jammy/universe amd64 certbot all 1.21.0-1build1 [21.3 kB]", "Get:14 http://mirrors.linode.com/ubuntu jammy/universe amd64 python3-certbot-apache all 1.21.0-1 [64.2 kB]", "Get:15 http://mirrors.linode.com/ubuntu jammy/main amd64 python3-icu amd64 2.8.1-0ubuntu2 [540 kB]", "Preconfiguring packages ...", "Fetched 1514 kB in 2s (1007 kB/s)", "Selecting previously unselected package augeas-lenses.", "(Reading database ... ", "(Reading database ... 5%", "(Reading database ... 10%", "(Reading database ... 15%", "(Reading database ... 20%", "(Reading database ... 25%", "(Reading database ... 30%", "(Reading database ... 35%", "(Reading database ... 40%", "(Reading database ... 45%", "(Reading database ... 50%", "(Reading database ... 55%", "(Reading database ... 60%", "(Reading database ... 65%", "(Reading database ... 70%", "(Reading database ... 75%", "(Reading database ... 80%", "(Reading database ... 85%", "(Reading database ... 90%", "(Reading database ... 95%", "(Reading database ... 100%", "(Reading database ... 233147 files and directories currently installed.)", "Preparing to unpack .../00-augeas-lenses_1.13.0-1_all.deb ...", "Unpacking augeas-lenses (1.13.0-1) ...", "Selecting previously unselected package libaugeas0:amd64.", "Preparing to unpack .../01-libaugeas0_1.13.0-1_amd64.deb ...", "Unpacking libaugeas0:amd64 (1.13.0-1) ...", "Selecting previously unselected package python3-josepy.", "Preparing to unpack .../02-python3-josepy_1.10.0-1_all.deb ...", "Unpacking python3-josepy (1.10.0-1) ...", "Selecting previously unselected package python3-rfc3339.", "Preparing to unpack .../03-python3-rfc3339_1.1-3_all.deb ...", "Unpacking python3-rfc3339 (1.1-3) ...", "Selecting previously unselected package python3-acme.", "Preparing to unpack .../04-python3-acme_1.21.0-1ubuntu0.1_all.deb ...", "Unpacking python3-acme (1.21.0-1ubuntu0.1) ...", "Selecting previously unselected package python3-augeas.", "Preparing to unpack .../05-python3-augeas_0.5.0-1.1_all.deb ...", "Unpacking python3-augeas (0.5.0-1.1) ...", "Selecting previously unselected package python3-configargparse.", "Preparing to unpack .../06-python3-configargparse_1.5.3-1_all.deb ...", "Unpacking python3-configargparse (1.5.3-1) ...", "Selecting previously unselected package python3-parsedatetime.", "Preparing to unpack .../07-python3-parsedatetime_2.6-2_all.deb ...", "Unpacking python3-parsedatetime (2.6-2) ...", "Selecting previously unselected package python3-zope.hookable.", "Preparing to unpack .../08-python3-zope.hookable_5.1.0-1build1_amd64.deb ...", "Unpacking python3-zope.hookable (5.1.0-1build1) ...", "Selecting previously unselected package python3-zope.event.", "Preparing to unpack .../09-python3-zope.event_4.4-3_all.deb ...", "Unpacking python3-zope.event (4.4-3) ...", "Selecting previously unselected package python3-zope.component.", "Preparing to unpack .../10-python3-zope.component_4.3.0-3_all.deb ...", "Unpacking python3-zope.component (4.3.0-3) ...", "Selecting previously unselected package python3-certbot.", "Preparing to unpack .../11-python3-certbot_1.21.0-1build1_all.deb ...", "Unpacking python3-certbot (1.21.0-1build1) ...", "Selecting previously unselected package certbot.", "Preparing to unpack .../12-certbot_1.21.0-1build1_all.deb ...", "Unpacking certbot (1.21.0-1build1) ...", "Selecting previously unselected package python3-certbot-apache.", "Preparing to unpack .../13-python3-certbot-apache_1.21.0-1_all.deb ...", "Unpacking python3-certbot-apache (1.21.0-1) ...", "Selecting previously unselected package python3-icu.", "Preparing to unpack .../14-python3-icu_2.8.1-0ubuntu2_amd64.deb ...", "Unpacking python3-icu (2.8.1-0ubuntu2) ...", "Setting up python3-configargparse (1.5.3-1) ...", "Setting up python3-parsedatetime (2.6-2) ...", "Setting up python3-icu (2.8.1-0ubuntu2) ...", "Setting up augeas-lenses (1.13.0-1) ...", "Setting up python3-zope.event (4.4-3) ...", "Setting up python3-zope.hookable (5.1.0-1build1) ...", "Setting up libaugeas0:amd64 (1.13.0-1) ...", "Setting up python3-josepy (1.10.0-1) ...", "Setting up python3-augeas (0.5.0-1.1) ...", "Setting up python3-rfc3339 (1.1-3) ...", "Setting up python3-zope.component (4.3.0-3) ...", "Setting up python3-acme (1.21.0-1ubuntu0.1) ...", "Setting up python3-certbot (1.21.0-1build1) ...", "Setting up certbot (1.21.0-1build1) ...", "Created symlink /etc/systemd/system/timers.target.wants/certbot.timer -> /lib/systemd/system/certbot.timer.", "Setting up python3-certbot-apache (1.21.0-1) ...", "Processing triggers for man-db (2.10.2-1) ...", "Processing triggers for libc-bin (2.35-0ubuntu3.10) ...", "NEEDRESTART-VER: 3.5", "NEEDRESTART-KCUR: 5.15.0-130-generic", "NEEDRESTART-KEXP: 5.15.0-140-generic", "NEEDRESTART-KSTA: 3", "NEEDRESTART-SVC: dbus.service", "NEEDRESTART-SVC: networkd-dispatcher.service", "NEEDRESTART-SVC: systemd-logind.service", "NEEDRESTART-SVC: unattended-upgrades.service", "NEEDRESTART-SVC: user@0.service"]}
+
+TASK [certbot_ssl : set certbot plugin] ****************************************
+ok: [localhost] => {"ansible_facts": {"certbot_plugin": "apache"}, "changed": false}
+
+TASK [certbot_ssl : installing let's encrypt certificate on subdomain provided via UDF] ***
+skipping: [localhost] => {"changed": false, "skip_reason": "Conditional result was False"}
+
+TASK [certbot_ssl : installing let's encrypt certificate on tld and default subdomain provided via UDF] ***
+skipping: [localhost] => {"changed": false, "skip_reason": "Conditional result was False"}
+
+TASK [certbot_ssl : installing let's encrypt certificate on default domain] ****
+changed: [localhost] => {"changed": true, "cmd": "certbot -n --apache --agree-tos --redirect -d 45-56-119-39.ip.linodeusercontent.com -m joseph.s.cardillo@gmail.com", "delta": "0:00:13.681554", "end": "2025-05-30 14:48:27.219375", "rc": 0, "start": "2025-05-30 14:48:13.537821", "stderr": "Saving debug log to /var/log/letsencrypt/letsencrypt.log", "stderr_lines": ["Saving debug log to /var/log/letsencrypt/letsencrypt.log"], "stdout": "Account registered.\nRequesting a certificate for 45-56-119-39.ip.linodeusercontent.com\n\nSuccessfully received certificate.\nCertificate is saved at: /etc/letsencrypt/live/45-56-119-39.ip.linodeusercontent.com/fullchain.pem\nKey is saved at:         /etc/letsencrypt/live/45-56-119-39.ip.linodeusercontent.com/privkey.pem\nThis certificate expires on 2025-08-28.\nThese files will be updated when the certificate renews.\nCertbot has set up a scheduled task to automatically renew this certificate in the background.\n\nDeploying certificate\nSuccessfully deployed certificate for 45-56-119-39.ip.linodeusercontent.com to /etc/apache2/sites-enabled/45-56-119-39.ip.linodeusercontent.com.conf\nCongratulations! You have successfully enabled HTTPS on https://45-56-119-39.ip.linodeusercontent.com\n\n- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -\nIf you like Certbot, please consider supporting our work by:\n * Donating to ISRG / Let's Encrypt:   https://letsencrypt.org/donate\n * Donating to EFF:                    https://eff.org/donate-le\n- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -", "stdout_lines": ["Account registered.", "Requesting a certificate for 45-56-119-39.ip.linodeusercontent.com", "", "Successfully received certificate.", "Certificate is saved at: /etc/letsencrypt/live/45-56-119-39.ip.linodeusercontent.com/fullchain.pem", "Key is saved at:         /etc/letsencrypt/live/45-56-119-39.ip.linodeusercontent.com/privkey.pem", "This certificate expires on 2025-08-28.", "These files will be updated when the certificate renews.", "Certbot has set up a scheduled task to automatically renew this certificate in the background.", "", "Deploying certificate", "Successfully deployed certificate for 45-56-119-39.ip.linodeusercontent.com to /etc/apache2/sites-enabled/45-56-119-39.ip.linodeusercontent.com.conf", "Congratulations! You have successfully enabled HTTPS on https://45-56-119-39.ip.linodeusercontent.com", "", "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -", "If you like Certbot, please consider supporting our work by:", " * Donating to ISRG / Let's Encrypt:   https://letsencrypt.org/donate", " * Donating to EFF:                    https://eff.org/donate-le", "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -"]}
+
+TASK [certbot_ssl : install nginx certbot plugin] ******************************
+skipping: [localhost] => {"changed": false, "skip_reason": "Conditional result was False"}
+
+TASK [certbot_ssl : install certbot standalone plugin] *************************
+skipping: [localhost] => {"changed": false, "skip_reason": "Conditional result was False"}
+
+TASK [filecloud : logging into filecloud] **************************************
+ok: [localhost] => {"access_control_allow_credentials": "true", "access_control_allow_origin": "ffol.filecloud.com", "cache_control": "no-cache=\"Set-Cookie\"", "changed": false, "connection": "close", "content_security_policy": "default-src 'self' blob: *.live.com *.amazonaws.com *.core.windows.net www.google.com http://127.0.0.1:34320/v1/fileassociations *.autodesk.com;     connect-src 'self' *.amazonaws.com *.core.windows.net blob: data: http://127.0.0.1:34320/v1/fileassociations *.autodesk.com;     style-src 'unsafe-inline' 'self' *.autodesk.com;     script-src 'unsafe-inline' 'unsafe-eval' 'self' www.google.com www.gstatic.com  teams.microsoft.com *.teams.microsoft.com *.skype.com *.autodesk.com;     frame-src 'self' blob: www.google.com *.live.com docs.google.com accounts.google.com;     font-src 'self' data: *.autodesk.com;     img-src www.gstatic.com 'self' data: blob: *.duosecurity.com *.live.com *.amazonaws.com *.core.windows.net *.office.net *.autodesk.com;     frame-ancestors 'self' teams.microsoft.com *.teams.microsoft.com *.skype.com *.my.salesforce.com;     worker-src 'self' blob: *.autodesk.com", "content_type": "text/xml; charset=utf-8", "cookies": {"X-XSRF-TOKEN": "y0kwjvgl0gbpf0aes1ku", "X-XSRF-TOKEN-admin": "y0kwjvgl0gbpf0aes1ku", "tonidocloud-ah": "efd27a3049eb585abcc77c27f0da19ec529f6d02", "tonidocloud-as": "b7777f09-a953-4fcf-985c-02358c444e90", "tonidocloud-au": "admin"}, "cookies_string": "X-XSRF-TOKEN=y0kwjvgl0gbpf0aes1ku; X-XSRF-TOKEN-admin=y0kwjvgl0gbpf0aes1ku; tonidocloud-ah=efd27a3049eb585abcc77c27f0da19ec529f6d02; tonidocloud-as=b7777f09-a953-4fcf-985c-02358c444e90; tonidocloud-au=admin", "date": "Fri, 30 May 2025 14:48:27 GMT", "elapsed": 0, "msg": "OK (unknown bytes)", "redirected": false, "server": "", "set_cookie": "X-XSRF-TOKEN-admin=y0kwjvgl0gbpf0aes1ku; path=/; HttpOnly; SameSite=Strict, X-XSRF-TOKEN=y0kwjvgl0gbpf0aes1ku; path=/; HttpOnly; SameSite=Strict, tonidocloud-au=admin; path=/; HttpOnly; SameSite=Strict, tonidocloud-as=b7777f09-a953-4fcf-985c-02358c444e90; path=/; HttpOnly; SameSite=Strict, tonidocloud-ah=efd27a3049eb585abcc77c27f0da19ec529f6d02; path=/; HttpOnly; SameSite=Strict", "status": 200, "strict_transport_security": "max-age=31536000; includeSubDomains", "transfer_encoding": "chunked", "url": "http://45.56.119.39/admin/adminlogin?adminuser=admin&adminpassword=C2U2CEhnGN98FzZU4IdJgUbUZ", "vary": "Accept-Encoding", "x_content_type_options": "nosniff", "x_frame_options": "SAMEORIGIN", "x_xss_protection": "1; mode=block"}
+
+TASK [filecloud : saving cookies to variable] **********************************
+ok: [localhost] => {"ansible_facts": {"login": {"X-XSRF-TOKEN": "y0kwjvgl0gbpf0aes1ku", "X-XSRF-TOKEN-admin": "y0kwjvgl0gbpf0aes1ku", "tonidocloud-ah": "efd27a3049eb585abcc77c27f0da19ec529f6d02", "tonidocloud-as": "b7777f09-a953-4fcf-985c-02358c444e90", "tonidocloud-au": "admin"}}, "changed": false}
+
+TASK [filecloud : extracting tonidocloud_ah value] *****************************
+ok: [localhost] => {"ansible_facts": {"tonidocloud_ah": "efd27a3049eb585abcc77c27f0da19ec529f6d02"}, "changed": false}
+
+TASK [filecloud : extracting tonidocloud_as value] *****************************
+ok: [localhost] => {"ansible_facts": {"tonidocloud_as": "b7777f09-a953-4fcf-985c-02358c444e90"}, "changed": false}
+
+TASK [filecloud : extracting x_xsrf_token value] *******************************
+ok: [localhost] => {"ansible_facts": {"x_xsrf_token": "y0kwjvgl0gbpf0aes1ku"}, "changed": false}
+
+TASK [filecloud : configuring GEO IP] ******************************************
+ok: [localhost] => {"access_control_allow_credentials": "true", "access_control_allow_origin": "ffol.filecloud.com", "cache_control": "no-cache=\"Set-Cookie\"", "changed": false, "connection": "close", "content_security_policy": "default-src 'self' blob: *.live.com *.amazonaws.com *.core.windows.net www.google.com http://127.0.0.1:34320/v1/fileassociations *.autodesk.com;     connect-src 'self' *.amazonaws.com *.core.windows.net blob: data: http://127.0.0.1:34320/v1/fileassociations *.autodesk.com;     style-src 'unsafe-inline' 'self' *.autodesk.com;     script-src 'unsafe-inline' 'unsafe-eval' 'self' www.google.com www.gstatic.com  teams.microsoft.com *.teams.microsoft.com *.skype.com *.autodesk.com;     frame-src 'self' blob: www.google.com *.live.com docs.google.com accounts.google.com;     font-src 'self' data: *.autodesk.com;     img-src www.gstatic.com 'self' data: blob: *.duosecurity.com *.live.com *.amazonaws.com *.core.windows.net *.office.net *.autodesk.com;     frame-ancestors 'self' teams.microsoft.com *.teams.microsoft.com *.skype.com *.my.salesforce.com;     worker-src 'self' blob: *.autodesk.com", "content_type": "text/xml; charset=utf-8", "cookies": {}, "cookies_string": "", "date": "Fri, 30 May 2025 14:48:29 GMT", "elapsed": 0, "msg": "OK (unknown bytes)", "redirected": false, "server": "", "status": 200, "strict_transport_security": "max-age=31536000; includeSubDomains", "transfer_encoding": "chunked", "url": "http://45.56.119.39/admin/", "vary": "Accept-Encoding", "x_content_type_options": "nosniff", "x_frame_options": "SAMEORIGIN", "x_xss_protection": "1; mode=block"}
+
+TASK [post : copy MOTD template to /etc/motd] **********************************
+changed: [localhost] => {"changed": true, "checksum": "3d85b80390d557b000591aaf82814dfe0219153a", "dest": "/etc/motd", "gid": 0, "group": "root", "md5sum": "ae436318b0127f64bda2dbc963f668cb", "mode": "0644", "owner": "root", "size": 516, "src": "/root/.ansible/tmp/ansible-tmp-1748616509.2827663-89016-203760600009696/source", "state": "file", "uid": 0}
+
+TASK [post : writing sudo creds into file] *************************************
+changed: [localhost] => {"changed": true, "checksum": "e097dacafd6458ab9fa64981c476c67786eaf087", "dest": "/home/joe/.credentials", "gid": 1000, "group": "joe", "md5sum": "1f58e6f4bcbb78c31b0e76bc0ddfa87d", "mode": "0600", "owner": "joe", "size": 112, "src": "/root/.ansible/tmp/ansible-tmp-1748616509.909709-89065-261373042339188/source", "state": "file", "uid": 1000}
+
+PLAY RECAP *********************************************************************
+localhost                  : ok=13   changed=4    unreachable=0    failed=0    skipped=9    rescued=0    ignored=0   
+
