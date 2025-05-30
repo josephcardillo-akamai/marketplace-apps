@@ -1,16 +1,18 @@
 ---
-- name: Installing FileCloud
-  shell:
-    cmd: ACCEPT_EULA=Y  apt-get install filecloud -y  
+- name: Install FileCloud
+  apt:
+    name: filecloud
+    state: present
+    environment:
+      ACCEPT_EULA: "Y"
+  notify: restart apache2
 
-reset admin password
-- name: run PHP script to reset admin password
+- name: Reset FileCloud admin password
   command: 'php resetadminpw.php -p "{{ filecloud_admin_password }}"'
   args:
     chdir: '/var/www/html/resources/backup/'
 
-# configure filecloud
-- name: logging into filecloud
+- name: Authenticate with FileCloud admin interface
   uri:
     url: http://{{ ansible_default_ipv4.address }}/admin/adminlogin?adminuser=admin&adminpassword={{ filecloud_admin_password }}
     method: GET
@@ -19,23 +21,23 @@ reset admin password
     force_basic_auth: yes
   register: login_cookies
 
-- name: saving cookies to variable
+- name: Store authentication cookies
   set_fact:
     login: "{{ login_cookies.cookies }}"
 
-- name: extracting tonidocloud_ah value
+- name: Extract tonidocloud_ah cookie value
   set_fact:
     tonidocloud_ah: "{{ login['tonidocloud-ah'] }}"
 
-- name: extracting tonidocloud_as value
+- name: Extract tonidocloud_as cookie value
   set_fact:
     tonidocloud_as: "{{ login['tonidocloud-as'] }}"
 
-- name: extracting x_xsrf_token value
+- name: Extract XSRF token value
   set_fact:
     x_xsrf_token: "{{ login['X-XSRF-TOKEN'] }}"
 
-- name: configuring GEO IP
+- name: Configure GEO IP settings
   uri:
     url: http://{{ ansible_default_ipv4.address }}/admin/
     method: POST
@@ -49,42 +51,39 @@ reset admin password
       param0: "TONIDOCLOUD_GEOIP_ENABLED"
       value0: "1"
 
-- name: Remove FileCloud install folder
+- name: Remove FileCloud installation directory
   file:
     path: /var/www/html/install
     state: absent
 
-- name: Set FileCloud admin email
+- name: Configure FileCloud server URL
   lineinfile:
     path: /var/www/html/config/cloudconfig.php
-    regexp: '^TONIDOCLOUD_REPLY_TO_EMAIL'
-    line: "TONIDOCLOUD_REPLY_TO_EMAIL = '{{ soa_email_address }}';"
-    create: true
+    regexp: '^define\("TONIDOCLOUD_SERVER_URL"'
+    line: 'define("TONIDOCLOUD_SERVER_URL", "https://{{ _domain }}" );'
+    create: false
+  notify: restart apache2
 
-- name: Set FileCloud reply from email
+- name: Configure FileCloud reply to email
   lineinfile:
     path: /var/www/html/config/cloudconfig.php
-    regexp: '^TONIDOCLOUD_REPLY_FROM_EMAIL'
-    line: "TONIDOCLOUD_REPLY_FROM_EMAIL = '{{ soa_email_address }}';"
-    create: true
+    regexp: '^define\("TONIDOCLOUD_REPLY_TO_EMAIL"'
+    line: 'define("TONIDOCLOUD_REPLY_TO_EMAIL", "{{ soa_email_address }}" );'
+    create: false
+  notify: restart apache2
 
-- name: Set FileCloud server URL
+- name: Configure FileCloud reply from email
   lineinfile:
     path: /var/www/html/config/cloudconfig.php
-    regexp: '^TONIDOCLOUD_SERVER_URL'
-    line: "TONIDOCLOUD_SERVER_URL = 'https://{{ _domain }}';"
-    create: true
+    regexp: '^define\("TONIDOCLOUD_REPLY_FROM_EMAIL"'
+    line: 'define("TONIDOCLOUD_REPLY_FROM_EMAIL", "{{ soa_email_address }}" );'
+    create: false
+  notify: restart apache2
 
-- name: Set FileCloud server URL
+- name: Configure FileCloud secure cookie
   lineinfile:
     path: /var/www/html/config/cloudconfig.php
-    regexp: '^TONIDOCLOUD_SERVER_URL'
-    line: "TONIDOCLOUD_SERVER_URL = 'https://{{ _domain }}';"
-    create: true
-
-- name: Enable secure cookie in FileCloud config
-  lineinfile:
-    path: /var/www/html/config/cloudconfig.php
-    regexp: '^TONIDOCLOUD_SECURE_COOKIE'
-    line: "TONIDOCLOUD_SECURE_COOKIE = 1;"
-    create: true
+    regexp: '^define\("TONIDOCLOUD_SECURE_COOKIE"'
+    line: 'define("TONIDOCLOUD_SECURE_COOKIE", 1);'
+    create: false
+  notify: restart apache2

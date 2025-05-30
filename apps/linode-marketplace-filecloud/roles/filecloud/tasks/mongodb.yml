@@ -4,3 +4,45 @@
     name: mongodb-org
     state: present
     update_cache: yes
+
+- name: Ensure MongoDB service is started and enabled
+  systemd:
+    name: mongod
+    state: started
+    enabled: yes
+
+- name: Create MongoDB admin user
+  mongodb_user:
+    login_host: localhost
+    login_port: 27017
+    database: admin
+    name: "{{ mongodb_admin_user }}"
+    password: "{{ mongodb_admin_password }}"
+    roles: root
+    state: present
+  no_log: true
+
+- name: Configure MongoDB authentication
+  copy:
+    src: mongod.conf
+    dest: /etc/mongod.conf
+    owner: root
+    group: root
+    mode: '0644'
+  notify: restart mongodb
+
+- name: Set proper permissions for MongoDB data directory
+  file:
+    path: /var/lib/mongodb
+    owner: mongodb
+    group: mongodb
+    mode: '0750'
+    recurse: yes
+
+- name: Set proper permissions for MongoDB log directory
+  file:
+    path: /var/log/mongodb
+    owner: mongodb
+    group: mongodb
+    mode: '0750'
+    recurse: yes

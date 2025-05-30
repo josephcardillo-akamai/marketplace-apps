@@ -90,9 +90,64 @@ linode-cli linodes create \
   --authorized_users "myUser"
   --authorized_users "secondaryUser"
 ```
+## Post-Installation Configuration
+
+### Email Server Configuration
+
+After installation, you may see a warning about setting up a valid email server. To configure email settings, edit the `/var/www/html/config/cloudconfig.php` file and update the following settings:
+
+```php
+// Email Settings
+define("TONIDOCLOUD_FROM_EMAIL",          "your-email@domain.com" );
+define("TONIDOCLOUD_FROM_EMAIL_NAME",     "Your Organization Name" );
+define("TONIDOCLOUD_REPLY_TO_EMAIL",      "your-email@domain.com" );
+define("TONIDOCLOUD_REPLY_TO_EMAIL_NAME", "Your Organization Name" );
+
+define("TONIDOCLOUD_USE_EMAIL", "smtp" );
+
+// SMTP Server Settings
+define("TONIDOCLOUD_SMTP_HOSTNAME", "smtp.your-domain.com" ); // Your SMTP server hostname
+define("TONIDOCLOUD_SMTP_PORT", 587 );                        // Your SMTP server port (587 for TLS, 465 for SSL)
+define("TONIDOCLOUD_SMTP_AUTH", true );                       // Set to true if authentication is required
+define("TONIDOCLOUD_SMTP_AUTH_USER", "your-smtp-username" );  // Your SMTP username
+define("TONIDOCLOUD_SMTP_AUTH_PASSWORD", 'your-smtp-password' ); // Your SMTP password
+define("TONIDOCLOUD_SMTP_SECURE", 'tls' );                    // Use 'tls' or 'ssl' depending on your server
+```
+
+Common SMTP server configurations:
+
+1. **Gmail**:
+   ```php
+   define("TONIDOCLOUD_SMTP_HOSTNAME", "smtp.gmail.com" );
+   define("TONIDOCLOUD_SMTP_PORT", 587 );
+   define("TONIDOCLOUD_SMTP_AUTH", true );
+   define("TONIDOCLOUD_SMTP_AUTH_USER", "your-email@gmail.com" );
+   define("TONIDOCLOUD_SMTP_AUTH_PASSWORD", 'your-app-specific-password' );
+   define("TONIDOCLOUD_SMTP_SECURE", 'tls' );
+   ```
+   Note: For Gmail, you need to:
+   - Enable 2-factor authentication
+   - Generate an "App Password" to use instead of your regular password
+   - Use that App Password in the `TONIDOCLOUD_SMTP_AUTH_PASSWORD` setting
+
+2. **Office 365**:
+   ```php
+   define("TONIDOCLOUD_SMTP_HOSTNAME", "smtp.office365.com" );
+   define("TONIDOCLOUD_SMTP_PORT", 587 );
+   define("TONIDOCLOUD_SMTP_AUTH", true );
+   define("TONIDOCLOUD_SMTP_AUTH_USER", "your-email@yourdomain.com" );
+   define("TONIDOCLOUD_SMTP_AUTH_PASSWORD", 'your-password' );
+   define("TONIDOCLOUD_SMTP_SECURE", 'tls' );
+   ```
+
+After updating the configuration, restart the FileCloud service for the changes to take effect:
+```bash
+service apache2 restart
+```
 
 ## Resources
 
 - [Create Linode via API](https://www.linode.com/docs/api/linode-instances/#linode-create)
 - [Stackscript referece](https://www.linode.com/docs/guides/writing-scripts-for-use-with-linode-stackscripts-a-tutorial/#user-defined-fields-udfs)
+
 

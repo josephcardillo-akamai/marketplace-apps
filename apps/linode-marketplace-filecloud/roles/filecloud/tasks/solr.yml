@@ -1,5 +1,4 @@
 ---
-# Solr installation
 - name: installing solr
   shell:
     cmd: filecloudcp -s
@@ -32,7 +31,7 @@
     path: /opt/solrfcdata/var/solr/data/fccore
     owner: solr
     state: directory
-    recurse: yes
+    recurse: true
 
 - name: logging into filecloud
   uri:
@@ -40,7 +39,7 @@
     method: GET
     body_format: form-urlencoded
     status_code: 200
-    force_basic_auth: yes
+    force_basic_auth: true
   register: login_cookies
 
 - name: saving cookies to variable
@@ -66,4 +65,4 @@
     headers:
       Cookie: X-XSRF-TOKEN={{ x_xsrf_token }}; X-XSRF-TOKEN-admin={{ x_xsrf_token }}; tonidocloud-ah={{ tonidocloud_ah }}; tonidocloud-as={{ tonidocloud_as }}; tonidocloud-au=admin
     body_format: form-urlencoded
-    force_basic_auth: yes
+    force_basic_auth: true

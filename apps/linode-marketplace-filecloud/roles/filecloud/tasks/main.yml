@@ -1,22 +1,22 @@
 ---
 # FileCloud installation
-# - name: Add MongoDB and FileCloud repositories
-#   import_tasks: repos.yml
+- name: Add MongoDB and FileCloud repositories
+  import_tasks: repos.yml
 
-# - name: Install MongoDB
-#   import_tasks: mongodb.yml
+- name: Install MongoDB
+  import_tasks: mongodb.yml
 
-# - name: Install Apache
-#   import_tasks: apache.yml
+- name: Install Apache
+  import_tasks: apache.yml
 
-# - name: Install SSL
-#   import_tasks: ssl.yml
+- name: Install SSL
+  import_tasks: ssl.yml
 
-# - name: Install PHP
-#   import_tasks: php.yml
+- name: Install PHP
+  import_tasks: php.yml
 
-# - name: Install and Configure FileCloud
-#   import_tasks: filecloud.yml
+- name: Install and Configure FileCloud
+  import_tasks: filecloud.yml
 
 - name: Install Solr
   import_tasks: solr.yml
