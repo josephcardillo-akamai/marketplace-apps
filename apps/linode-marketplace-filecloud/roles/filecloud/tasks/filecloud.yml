@@ -1,11 +1,6 @@
 ---
 - name: Install FileCloud
-  apt:
-    name: filecloud
-    state: present
-    environment:
-      ACCEPT_EULA: "Y"
-  notify: restart apache2
+  shell: ACCEPT_EULA=Y apt install filecloud -y
 
 - name: Reset FileCloud admin password
   command: 'php resetadminpw.php -p "{{ filecloud_admin_password }}"'
@@ -14,11 +9,17 @@
 
 - name: Authenticate with FileCloud admin interface
   uri:
-    url: http://{{ ansible_default_ipv4.address }}/admin/adminlogin?adminuser=admin&adminpassword={{ filecloud_admin_password }}
-    method: GET
+    url: http://{{ _domain }}/admin/adminlogin
+    method: POST
     body_format: form-urlencoded
-    status_code: 200
-    force_basic_auth: yes
+    body:
+      adminuser: admin
+      adminpassword: "{{ filecloud_admin_password }}"
+    status_code: [200, 302]
+    force_basic_auth: true
+    validate_certs: false
+    headers:
+      Content-Type: "application/x-www-form-urlencoded"
   register: login_cookies
 
 - name: Store authentication cookies
@@ -39,7 +40,7 @@
 
 - name: Configure GEO IP settings
   uri:
-    url: http://{{ ansible_default_ipv4.address }}/admin/
+    url: https://{{ _domain }}/admin/
     method: POST
     headers:
       Content-Type: application/x-www-form-urlencoded
@@ -62,7 +63,6 @@
     regexp: '^define\("TONIDOCLOUD_SERVER_URL"'
     line: 'define("TONIDOCLOUD_SERVER_URL", "https://{{ _domain }}" );'
     create: false
-  notify: restart apache2
 
 - name: Configure FileCloud reply to email
   lineinfile:
@@ -70,7 +70,6 @@
     regexp: '^define\("TONIDOCLOUD_REPLY_TO_EMAIL"'
     line: 'define("TONIDOCLOUD_REPLY_TO_EMAIL", "{{ soa_email_address }}" );'
     create: false
-  notify: restart apache2
 
 - name: Configure FileCloud reply from email
   lineinfile:
@@ -78,7 +77,6 @@
     regexp: '^define\("TONIDOCLOUD_REPLY_FROM_EMAIL"'
     line: 'define("TONIDOCLOUD_REPLY_FROM_EMAIL", "{{ soa_email_address }}" );'
     create: false
-  notify: restart apache2
 
 - name: Configure FileCloud secure cookie
   lineinfile:
