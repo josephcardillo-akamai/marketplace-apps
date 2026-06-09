@@ -27,3 +27,11 @@ Network Trash Folder
 Temporary Items
 .apdisk
 
+# Claude Code local state — never commit per-developer settings or runtime locks
+.claude/settings.local.json
+.claude/*.lock
+
+# Workflow local material — never commit upstream clones or per-app scratch
+.reference/
+.documentation/
+
