@@ -31,10 +31,10 @@ Pushing is always a manual step. Do not `git push`.
 - The deploy StackScript's `# BEGIN CI-GH` block carries `GH_USER` + `BRANCH`. In the team Cloud
   Manager copy, **set just those two** to the operator's fork + working branch so the box clones
   the right code; everything else is identical to the repo copy.
-- **MCP gap:** the `linode-team` MCP exposes `create_stackscript`, `delete_stackscript`,
-  `list_stackscript` — there is **no `update_stackscript`**. To change an existing StackScript,
-  delete + recreate it (or edit in Cloud Manager). *Follow-up: add `update_stackscript` to
-  `linode-mcp`.*
+- **Updating the StackScript:** the `linode-team` MCP now exposes `update_stackscript` (partial
+  update — only the fields you pass change, and the StackScript **ID is preserved**, unlike
+  delete+recreate). Use it to push a revised script in place and set a `rev_note`.
+  (`create_stackscript` / `delete_stackscript` / `list_stackscripts` are still available.)
 
 ## Process
 
@@ -47,6 +47,12 @@ Pushing is always a manual step. Do not `git push`.
 3. Build a representative UDF payload (generate secrets, don't hardcode). Deploy a fresh Ubuntu
    24.04 Linode via `mcp__linode-team__create_linode` with that payload, **a generated `root_pass`,
    AND the operator's SSH pubkey**. Record box id/ip in `STATE.md`.
+   - **Keep the work dir on failure (enables the 4c inner loop):** the StackScript's EXIT trap
+     `rm -rf`s `/tmp/marketplace-apps` on any failure **unless `DEBUG` is set to a non-`NO` value**.
+     Before deploying an iteration box you intend to fix on-VM, set `DEBUG="yes"` at the top of the
+     deploy StackScript (uncomment the `#DEBUG="NO"` line, set it to `yes`) so a failed playbook
+     leaves the work dir intact to edit + re-run. Reset it (remove `DEBUG` / set back to `NO`) for the
+     **final** clean-deploy verification — that pass must run in normal production mode.
 
 ### Phase 4b — Monitor
 4. Poll: `get_linode` until `running`, then SSH and tail `/var/log/stackscript.log` to completion.
@@ -55,7 +61,9 @@ Pushing is always a manual step. Do not `git push`.
 ### Phase 4c — Two-tier fix loop
 **On failure, work the inner loop on the VM first (no GitHub), then mirror + push.**
 
-**Inner loop — on the VM, no GitHub round-trips:**
+**Inner loop — on the VM, no GitHub round-trips** (requires the work dir to have survived the
+failure — see the `DEBUG` note in 4a; without it the EXIT trap already wiped `/tmp/marketplace-apps`
+and you must skip straight to mirror+push+redeploy)**:**
    a. SSH into the box, read `/var/log/stackscript.log` + relevant service logs, **diagnose the
       root cause and cite the actual log line.**
    b. Apply the fix directly to the task file under

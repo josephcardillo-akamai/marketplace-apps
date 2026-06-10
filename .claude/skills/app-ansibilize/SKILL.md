@@ -85,8 +85,39 @@ Source of truth: `CLAUDE.md` §"Standard App Structure".
    - Booleans `true`/`false`, never `"yes"`/`"no"`. Defaults on every var for CI.
 4. Move all secrets to `provision.yml` (generated via `set_fact` + `lookup('password', ...)`),
    surfaced through `group_vars` and written to `/home/<user>/.credentials` by `roles/post`.
+   - **Cross-role variables (`include_role` scoping):** any var referenced in **more than one role**
+     — an app's superuser name, DB name, DB user, etc. used by both `roles/<app>` and `roles/post` —
+     must be written to `group_vars/linode/vars` by the StackScript `udf()` (play-wide), **not** put
+     in one role's `defaults/main.yml`. `include_role` scopes a role's `defaults/` to that role only,
+     so a value defined in `roles/<app>/defaults` is **undefined** when `roles/post` runs and the play
+     fails at deploy time (langflow hit exactly this: `'langflow_superuser' is undefined` in the post
+     creds task). Role `defaults/` are fine only for vars used **within that single role**. Generated
+     secrets follow the same play-wide path but originate in `provision.yml` instead of the `udf()`.
 5. Reuse helper roles from `apps/linode_helpers/roles/` wherever possible — `certbot_ssl`, `ufw`,
    `securessh`, `fail2ban`, `hostname`, `update_pkgs`, `data_exporter`, `docker`, `database`.
+   - **nginx reverse proxy (apps on a non-standard port):** ship the vhost as
+     `roles/<app>/templates/nginx.conf.j2` and select the certbot flow by passing `webserver_stack`
+     as a `vars:` on the `certbot_ssl` import (`vars: { webserver_stack: lemp }`) — like
+     chroma/deepseek — **not** through the StackScript `udf()`. Add a canonical-host redirect at the
+     **top** of `nginx.conf.j2` so the bare IP / any non-FQDN Host 301s to the canonical hostname
+     instead of certbot's default 404:
+     ```nginx
+     # raw IP / any non-FQDN Host -> canonical https://FQDN
+     server {
+         listen 80 default_server;
+         server_name _;
+         return 301 https://{{ _domain }}$request_uri;
+     }
+     server {
+         listen 80;
+         server_name {{ _domain }};
+         location / { proxy_pass http://127.0.0.1:{{ app_port }}; ... }
+     }
+     ```
+     `certbot --nginx` then attaches `listen 443 ssl` to the FQDN block and moves its port-80
+     handling into its own managed block; the `default_server` block is left intact to catch every
+     other Host, and renewal stays safe (verified `certbot renew --dry-run` with the `default_server`
+     present). Validated on langflow 2026-06-10.
 6. **SSH hardening placement:** `securessh` in `roles/common` right after `sshkey`, gated on
    `disable_root` — matching current practice. There is **no** "harden last" requirement in the
    playbook (that was only a manual-session precaution).
