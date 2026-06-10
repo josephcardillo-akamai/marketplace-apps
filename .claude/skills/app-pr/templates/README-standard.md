@@ -7,7 +7,7 @@ References for tone/structure: linode-marketplace-hashicorp-nomad, -hashicorp-va
 
 # <App Name> Marketplace App
 
-Deploy [<App Name>](<upstream-url>) on Akamai Cloud (Linode) — <one-line description of what the
+Deploy [<App Name>](<upstream-url>) on Akamai Cloud Compute — <one-line description of what the
 app does and who it's for>.
 
 ## What gets deployed

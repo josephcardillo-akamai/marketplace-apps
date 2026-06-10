@@ -44,10 +44,16 @@ Source of truth: `CLAUDE.md` §"Standard App Structure".
 | `requirements.txt` | Copy base, **update pins** + add app-specific deps (e.g. `PyMySQL`) |
 | `site.yml` | Same pattern; **edit only the role loop list** (`common` → `<app>` → `post`) |
 | `provision.yml` | Same pattern; **edit the generated cred var names** for this app |
-| `group_vars/linode/vars` | Copy as the near-empty committed placeholder (populated at deploy time) |
+| `group_vars/linode/vars` | Create as a **blank (0-byte) file** — populated at deploy time by the StackScript `udf()` + `provision.yml`. No comment. |
 | `roles/common/` | ~95% identical; copy and review (hostname, DNS, sshkey, securessh, update_pkgs, ufw, fail2ban) |
 | `roles/post/` | Same pattern; **edit the credentials block** for this app's secrets |
 | `roles/<app>/` | **Write fresh** — this is where the real per-app work lives |
+
+**Branding (fix it when adapting a reference app — older apps carry stale wording):**
+- motd (`roles/post/templates/motd.j2`): `Akamai Connected Cloud <App> Quick Deploy App` — **not**
+  "Marketplace App".
+- Platform name everywhere (motd, README): **Akamai Cloud Compute** — **not** "Linode" or
+  "Akamai Cloud (Linode)".
 
 ## Process
 

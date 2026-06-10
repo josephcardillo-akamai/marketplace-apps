@@ -7,8 +7,8 @@ References for tone/structure: linode-marketplace-deepseek, -qwen, -milvus, -chr
 
 # <Model / Engine Name> Marketplace App
 
-Serve [<Model / Engine>](<upstream-url>) on Akamai Cloud GPU instances — <one-line description:
-what the model/engine is, what it's good for>.
+Serve [<Model / Engine>](<upstream-url>) on Akamai Cloud Compute GPU instances — <one-line
+description: what the model/engine is, what it's good for>.
 
 ## What gets deployed
 
