@@ -1,0 +1,23 @@
+---
+- name: Start Langfuse services with Docker Compose
+  community.docker.docker_compose_v2:
+    project_src: "{{ langfuse_base_dir }}"
+    state: present
+
+- name: Wait for Langfuse web to start listening
+  wait_for:
+    host: 127.0.0.1
+    port: "{{ langfuse_port }}"
+    timeout: 300
+    msg: "Langfuse did not start listening on {{ langfuse_port }} within 300 seconds"
+
+# First boot runs ~420 Prisma migrations plus the LANGFUSE_INIT_* headless init
+# before the API reports healthy (manual_install.md §6-7)
+- name: Wait for Langfuse health check to report OK
+  uri:
+    url: "http://127.0.0.1:{{ langfuse_port }}/api/public/health"
+    return_content: true
+  register: langfuse_health
+  until: langfuse_health.json is defined and langfuse_health.json.status == 'OK'
+  retries: 30
+  delay: 5

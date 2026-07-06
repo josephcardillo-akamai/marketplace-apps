@@ -1,0 +1,24 @@
+---
+# Default vars (single-role scope only — cross-role vars come from the StackScript udf()
+# or provision.yml via group_vars; see docs/CLAUDE.md include_role scoping note)
+
+# Container image versions.
+# langfuse '3' is upstream's own compose pin (docker-compose.yml:8,73 @ 1f5d04da);
+# postgres 17 and redis 7 are upstream defaults; clickhouse/minio float like upstream.
+langfuse_version: "3"
+postgres_version: "17"
+redis_version: "7"
+clickhouse_image: "docker.io/clickhouse/clickhouse-server"
+minio_image: "cgr.dev/chainguard/minio"
+
+# Install directory
+langfuse_base_dir: "/opt/langfuse"
+
+# Web app port (loopback only; nginx fronts it)
+langfuse_port: 3000
+
+# Headless-initialization resource slugs (LANGFUSE_INIT_*)
+langfuse_org_id: "default-org"
+langfuse_org_name: "Default Org"
+langfuse_project_id: "default-project"
+langfuse_project_name: "Default Project"

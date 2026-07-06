@@ -1,0 +1,28 @@
+---
+- name: Setting up environment
+  hosts: localhost
+  connection: local
+  any_errors_fatal: true
+  user: root
+  vars_files: [group_vars/linode/vars]
+  tasks:
+    - name: Generating sudo user and password
+      import_tasks: ../linode_helpers/roles/sudouser/tasks/main.yml
+
+    # Every '# CHANGEME' secret in upstream's compose (docker-compose.yml @ 1f5d04da) is
+    # generated here. ENCRYPTION_KEY must be 256-bit hex ("openssl rand -hex 32" equivalent).
+    - name: Generate Langfuse secrets and credentials
+      lineinfile:
+        insertafter: EOF
+        path: group_vars/linode/vars
+        line: |
+          postgres_password: {{ lookup('password', '/dev/null length=32 chars=ascii_letters,digits') }}
+          clickhouse_password: {{ lookup('password', '/dev/null length=32 chars=ascii_letters,digits') }}
+          redis_auth: {{ lookup('password', '/dev/null length=32 chars=ascii_letters,digits') }}
+          minio_root_password: {{ lookup('password', '/dev/null length=32 chars=ascii_letters,digits') }}
+          langfuse_salt: {{ lookup('password', '/dev/null length=32 chars=ascii_letters,digits') }}
+          langfuse_encryption_key: {{ lookup('password', '/dev/null length=64 chars=hexdigits') | lower }}
+          nextauth_secret: {{ lookup('password', '/dev/null length=48 chars=ascii_letters,digits') }}
+          langfuse_admin_password: {{ lookup('password', '/dev/null length=32 chars=ascii_letters,digits') }}
+          langfuse_public_key: pk-lf-{{ lookup('password', '/dev/null length=32 chars=hexdigits') | lower }}
+          langfuse_secret_key: sk-lf-{{ lookup('password', '/dev/null length=32 chars=hexdigits') | lower }}

@@ -1,0 +1,41 @@
+---
+# Install Addons if requested
+- name: Add addons
+  import_role:
+    name: addons
+  when: add_ons != ['none']
+
+- name: Set up motd
+  template:
+    src: motd.j2
+    dest: /etc/motd
+    mode: '0600'
+    owner: '{{ username }}'
+    group: '{{ username }}'
+
+- name: Write credentials file
+  copy:
+    dest: '/home/{{ username }}/.credentials'
+    mode: '0600'
+    owner: '{{ username }}'
+    group: '{{ username }}'
+    content: |
+      Sudo Username: {{ username }}
+      Sudo Password: {{ password }}
+
+      Langfuse URL: https://{{ _domain }}/
+      Langfuse Admin Login (email): {{ user_email }}
+      Langfuse Admin Password: {{ langfuse_admin_password }}
+
+      Langfuse Project Public Key: {{ langfuse_public_key }}
+      Langfuse Project Secret Key: {{ langfuse_secret_key }}
+      (Use these keys in your SDK/OpenTelemetry clients to send traces:
+       LANGFUSE_HOST=https://{{ _domain }})
+      {% if obj_bucket is defined and obj_bucket | length > 0 %}
+
+      Blob Storage: Linode Object Storage bucket "{{ obj_bucket }}" ({{ obj_endpoint }})
+      {% else %}
+
+      Blob Storage: bundled MinIO (local volume). Multimodal media uploads are
+      disabled on this configuration; redeploy with Linode Object Storage to enable them.
+      {% endif %}

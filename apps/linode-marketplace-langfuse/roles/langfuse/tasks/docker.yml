@@ -1,0 +1,50 @@
+---
+- name: Create Langfuse install directory
+  file:
+    path: "{{ langfuse_base_dir }}"
+    state: directory
+    mode: '0755'
+
+- name: Install Docker latest
+  import_role:
+    name: docker
+
+- name: Install Docker Compose v2 plugin
+  apt:
+    name: docker-compose-plugin
+    state: present
+    update_cache: true
+
+# Object Storage pre-flight: the StackScript's obj_check only proves the four fields were
+# filled in, not that they work. A missing bucket or bad key would otherwise deploy a stack
+# that reports healthy but fails on the first trace write. curl >= 7.75 signs SigV4 natively;
+# the docker role above guarantees curl is installed.
+- name: Verify Object Storage bucket is reachable with the provided key
+  command: >
+    curl -sf -o /dev/null --max-time 30
+    --aws-sigv4 "aws:amz:{{ obj_region }}:s3"
+    --user "{{ obj_access_key }}:{{ obj_secret_key }}"
+    "https://{{ obj_bucket }}.{{ obj_endpoint }}/?max-keys=0"
+  register: obj_preflight
+  changed_when: false
+  failed_when: false
+  no_log: true
+  when: obj_bucket is defined
+
+- name: Fail fast when the Object Storage bucket is unreachable
+  fail:
+    msg: >-
+      Object Storage pre-flight failed: bucket '{{ obj_bucket }}' at {{ obj_endpoint }}
+      is not reachable with the provided access key (curl rc={{ obj_preflight.rc }}).
+      Verify the bucket exists and the key has read_write access to it, then redeploy.
+  when:
+    - obj_bucket is defined
+    - obj_preflight.rc != 0
+
+# Rendered with generated secrets inline — no .env file (values with spaces break
+# shell-sourcing of .env; see manual_install.md gotcha)
+- name: Create Docker Compose configuration
+  template:
+    src: docker-compose.yml.j2
+    dest: "{{ langfuse_base_dir }}/docker-compose.yml"
+    mode: '0600'

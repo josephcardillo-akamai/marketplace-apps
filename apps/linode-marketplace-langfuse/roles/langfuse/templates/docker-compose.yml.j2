@@ -1,0 +1,181 @@
+{#
+  Adapted from upstream langfuse docker-compose.yml @ 1f5d04da. Deviations
+  (architecture_decisions.md D3/D4/D7/D8/D12):
+    - web bound to 127.0.0.1 (nginx + certbot front it)
+    - minio S3 API loopback-only; console port not published
+    - blob storage fork: bundled MinIO by default; Linode Object Storage when the
+      obj_* UDFs are set (minio service omitted entirely, media uploads enabled)
+    - media upload configured only on the Object Storage path (needs a client-reachable
+      endpoint; MinIO on loopback cannot serve presigned URLs)
+    - TELEMETRY_ENABLED=false, AUTH_DISABLE_SIGNUP=true
+#}
+{% set obj_enabled = (obj_bucket | default('') | length > 0) %}
+services:
+  langfuse-worker:
+    image: "docker.io/langfuse/langfuse-worker:{{ langfuse_version }}"
+    restart: always
+    depends_on: &langfuse-depends-on
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      clickhouse:
+        condition: service_healthy
+{% if not obj_enabled %}
+      minio:
+        condition: service_healthy
+{% endif %}
+    ports:
+      - 127.0.0.1:3030:3030
+    environment: &langfuse-worker-env
+      NEXTAUTH_URL: "https://{{ _domain }}"
+      DATABASE_URL: "postgresql://postgres:{{ postgres_password }}@postgres:5432/postgres"
+      SALT: "{{ langfuse_salt }}"
+      ENCRYPTION_KEY: "{{ langfuse_encryption_key }}"
+      TELEMETRY_ENABLED: "false"
+      LANGFUSE_ENABLE_EXPERIMENTAL_FEATURES: "false"
+      CLICKHOUSE_MIGRATION_URL: clickhouse://clickhouse:9000
+      CLICKHOUSE_URL: http://clickhouse:8123
+      CLICKHOUSE_USER: clickhouse
+      CLICKHOUSE_PASSWORD: "{{ clickhouse_password }}"
+      CLICKHOUSE_CLUSTER_ENABLED: "false"
+{% if obj_enabled %}
+      LANGFUSE_S3_EVENT_UPLOAD_BUCKET: "{{ obj_bucket }}"
+      LANGFUSE_S3_EVENT_UPLOAD_REGION: "{{ obj_region }}"
+      LANGFUSE_S3_EVENT_UPLOAD_ACCESS_KEY_ID: "{{ obj_access_key }}"
+      LANGFUSE_S3_EVENT_UPLOAD_SECRET_ACCESS_KEY: "{{ obj_secret_key }}"
+      LANGFUSE_S3_EVENT_UPLOAD_ENDPOINT: "https://{{ obj_endpoint }}"
+      LANGFUSE_S3_EVENT_UPLOAD_FORCE_PATH_STYLE: "false"
+      LANGFUSE_S3_EVENT_UPLOAD_PREFIX: events/
+      LANGFUSE_S3_MEDIA_UPLOAD_BUCKET: "{{ obj_bucket }}"
+      LANGFUSE_S3_MEDIA_UPLOAD_REGION: "{{ obj_region }}"
+      LANGFUSE_S3_MEDIA_UPLOAD_ACCESS_KEY_ID: "{{ obj_access_key }}"
+      LANGFUSE_S3_MEDIA_UPLOAD_SECRET_ACCESS_KEY: "{{ obj_secret_key }}"
+      LANGFUSE_S3_MEDIA_UPLOAD_ENDPOINT: "https://{{ obj_endpoint }}"
+      LANGFUSE_S3_MEDIA_UPLOAD_FORCE_PATH_STYLE: "false"
+      LANGFUSE_S3_MEDIA_UPLOAD_PREFIX: media/
+{% else %}
+      LANGFUSE_S3_EVENT_UPLOAD_BUCKET: langfuse
+      LANGFUSE_S3_EVENT_UPLOAD_REGION: auto
+      LANGFUSE_S3_EVENT_UPLOAD_ACCESS_KEY_ID: minio
+      LANGFUSE_S3_EVENT_UPLOAD_SECRET_ACCESS_KEY: "{{ minio_root_password }}"
+      LANGFUSE_S3_EVENT_UPLOAD_ENDPOINT: http://minio:9000
+      LANGFUSE_S3_EVENT_UPLOAD_FORCE_PATH_STYLE: "true"
+      LANGFUSE_S3_EVENT_UPLOAD_PREFIX: events/
+{% endif %}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_AUTH: "{{ redis_auth }}"
+      REDIS_TLS_ENABLED: "false"
+
+  langfuse-web:
+    image: "docker.io/langfuse/langfuse:{{ langfuse_version }}"
+    restart: always
+    depends_on: *langfuse-depends-on
+    ports:
+      - 127.0.0.1:{{ langfuse_port }}:3000
+    environment:
+      <<: *langfuse-worker-env
+      NEXTAUTH_SECRET: "{{ nextauth_secret }}"
+      AUTH_DISABLE_SIGNUP: "true"
+      LANGFUSE_INIT_ORG_ID: "{{ langfuse_org_id }}"
+      LANGFUSE_INIT_ORG_NAME: "{{ langfuse_org_name }}"
+      LANGFUSE_INIT_PROJECT_ID: "{{ langfuse_project_id }}"
+      LANGFUSE_INIT_PROJECT_NAME: "{{ langfuse_project_name }}"
+      LANGFUSE_INIT_PROJECT_PUBLIC_KEY: "{{ langfuse_public_key }}"
+      LANGFUSE_INIT_PROJECT_SECRET_KEY: "{{ langfuse_secret_key }}"
+      LANGFUSE_INIT_USER_EMAIL: "{{ user_email }}"
+      LANGFUSE_INIT_USER_NAME: "{{ username }}"
+      LANGFUSE_INIT_USER_PASSWORD: "{{ langfuse_admin_password }}"
+
+  clickhouse:
+    image: "{{ clickhouse_image }}"
+    restart: always
+    user: "101:101"
+    environment:
+      CLICKHOUSE_DB: default
+      CLICKHOUSE_USER: clickhouse
+      CLICKHOUSE_PASSWORD: "{{ clickhouse_password }}"
+    volumes:
+      - langfuse_clickhouse_data:/var/lib/clickhouse
+      - langfuse_clickhouse_logs:/var/log/clickhouse-server
+    ports:
+      - 127.0.0.1:8123:8123
+      - 127.0.0.1:9000:9000
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost:8123/ping || exit 1
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 1s
+{% if not obj_enabled %}
+
+  minio:
+    image: "{{ minio_image }}"
+    restart: always
+    entrypoint: sh
+    # create the 'langfuse' bucket before starting the service (upstream docker-compose.yml:117)
+    command: -c 'mkdir -p /data/langfuse && minio server --address ":9000" --console-address ":9001" /data'
+    environment:
+      MINIO_ROOT_USER: minio
+      MINIO_ROOT_PASSWORD: "{{ minio_root_password }}"
+    ports:
+      - 127.0.0.1:9090:9000
+    volumes:
+      - langfuse_minio_data:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 1s
+      timeout: 5s
+      retries: 5
+      start_period: 1s
+{% endif %}
+
+  redis:
+    image: "docker.io/redis:{{ redis_version }}"
+    restart: always
+    command: >
+      --requirepass {{ redis_auth }}
+      --maxmemory-policy noeviction
+    ports:
+      - 127.0.0.1:6379:6379
+    volumes:
+      - langfuse_redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 3s
+      timeout: 10s
+      retries: 10
+
+  postgres:
+    image: "docker.io/postgres:{{ postgres_version }}"
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: "{{ postgres_password }}"
+      POSTGRES_DB: postgres
+      TZ: UTC
+      PGTZ: UTC
+    ports:
+      - 127.0.0.1:5432:5432
+    volumes:
+      - langfuse_postgres_data:/var/lib/postgresql/data
+
+volumes:
+  langfuse_postgres_data:
+    driver: local
+  langfuse_clickhouse_data:
+    driver: local
+  langfuse_clickhouse_logs:
+    driver: local
+{% if not obj_enabled %}
+  langfuse_minio_data:
+    driver: local
+{% endif %}
+  langfuse_redis_data:
+    driver: local
