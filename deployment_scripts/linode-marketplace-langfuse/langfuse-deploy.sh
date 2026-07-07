@@ -43,7 +43,7 @@ fi
 ## Langfuse Configuration
 #<UDF name="user_email" label="Email address for the Langfuse admin login">
 
-## Optional: Linode Object Storage (fill in ALL FOUR fields or NONE — enables multimodal media uploads; otherwise a bundled local MinIO is used)
+## Optional: Linode Object Storage (fill in ALL FOUR fields or NONE - enables multimodal media uploads; otherwise a bundled local MinIO is used)
 #<UDF name="obj_bucket" label="Object Storage bucket name (optional; must already exist)" default="">
 #<UDF name="obj_endpoint" label="Object Storage S3 endpoint (optional)" example="us-east-1.linodeobjects.com" default="">
 #<UDF name="obj_access_key" label="Object Storage access key (optional)" default="">
@@ -103,7 +103,7 @@ function obj_check {
 	[[ -n ${OBJ_SECRET_KEY} ]] && set_count=$((set_count + 1))
 
 	if [[ ${set_count} -ne 0 && ${set_count} -ne 4 ]]; then
-		echo "[error] Linode Object Storage requires ALL FOUR fields (bucket, endpoint, access key, secret key) — only ${set_count} provided. Fill in all four or leave all empty to use the bundled MinIO."
+		echo "[error] Linode Object Storage requires ALL FOUR fields (bucket, endpoint, access key, secret key) - only ${set_count} provided. Fill in all four or leave all empty to use the bundled MinIO."
 		exit 1
 	fi
 }
