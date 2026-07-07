@@ -3,9 +3,10 @@
 # or provision.yml via group_vars; see docs/CLAUDE.md include_role scoping note)
 
 # Container image versions.
-# langfuse '3' is upstream's own compose pin (docker-compose.yml:8,73 @ 1f5d04da);
+# langfuse 'latest' per operator convention (2026-07-07, matches chroma) — a conscious
+# deviation from upstream's compose pin ':3' (docker-compose.yml:8,73 @ 1f5d04da);
 # postgres 17 and redis 7 are upstream defaults; clickhouse/minio float like upstream.
-langfuse_version: "3"
+langfuse_version: "latest"
 postgres_version: "17"
 redis_version: "7"
 clickhouse_image: "docker.io/clickhouse/clickhouse-server"
