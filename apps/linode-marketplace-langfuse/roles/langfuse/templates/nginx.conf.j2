@@ -1,4 +1,3 @@
-# raw IP / any non-FQDN Host -> canonical https://FQDN
 server {
     listen 80 default_server;
     server_name _;
@@ -9,7 +8,6 @@ server {
     listen 80;
     server_name {{ _domain }};
 
-    # Langfuse multi-modal media uploads can be large; allow generous request bodies.
     client_max_body_size 100M;
 
     location / {
