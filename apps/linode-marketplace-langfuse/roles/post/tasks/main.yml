@@ -1,0 +1,28 @@
+---
+- name: Set up MOTD
+  template:
+    src: motd.j2
+    dest: /etc/motd
+    mode: '0600'
+    owner: '{{ username }}'
+    group: '{{ username }}'
+
+- name: Writing creds to file
+  copy:
+    dest: '/home/{{ username }}/.credentials'
+    mode: '0600'
+    owner: '{{ username }}'
+    group: '{{ username }}'
+    content: |
+      # Langfuse
+      URL: https://{{ _domain }}
+      Admin login email: {{ user_email | default('admin@' + _domain) }}
+      Admin password: {{ langfuse_admin_password }}
+      # Default project API keys
+      Public key: {{ langfuse_public_key }}
+      Secret key: {{ langfuse_secret_key }}
+      # Sudo user
+      Sudo Username: {{ username }}
+      Sudo Password: {{ password }}
+      # Blob storage
+      Blob storage: {{ 'Linode Object Storage (bucket ' + obj_bucket + ')' if (obj_bucket | default('') | length) > 0 else 'bundled MinIO' }}

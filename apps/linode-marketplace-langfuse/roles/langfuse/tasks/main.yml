@@ -1,0 +1,16 @@
+---
+# Object Storage pre-flight runs FIRST — fail early before any install work if the operator
+# supplied Object Storage UDFs but the bucket is unreachable (manual_install.md §7, D6.4).
+- name: Object Storage pre-flight
+  import_tasks: objectstorage.yml
+  when: obj_enabled | bool
+
+- name: Install docker
+  import_role:
+    name: docker
+
+- name: Deploy Langfuse stack
+  import_tasks: langfuse.yml
+
+- name: Configure nginx reverse proxy and SSL
+  import_tasks: nginx.yml

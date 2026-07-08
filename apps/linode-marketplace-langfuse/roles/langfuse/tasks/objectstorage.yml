@@ -1,0 +1,23 @@
+---
+# Fail early (before install) when Object Storage UDFs are set but the bucket is unreachable.
+# Mirrors the boto3 head_bucket/list precheck validated in manual_install.md §7 (existing bucket
+# -> OK, missing -> 404, wrong key -> 403). Uses amazon.aws (boto3) — the Ansible-native path.
+- name: Object Storage pre-flight
+  block:
+    - name: Confirm the Object Storage bucket exists and the keys authenticate
+      amazon.aws.s3_object:
+        endpoint_url: "https://{{ obj_endpoint }}"
+        access_key: "{{ obj_access_key }}"
+        secret_key: "{{ obj_secret_key }}"
+        region: "{{ obj_region | default('us-east-1') }}"
+        bucket: "{{ obj_bucket }}"
+        mode: list
+      register: obj_preflight
+  rescue:
+    - name: Abort — Object Storage bucket unreachable
+      ansible.builtin.fail:
+        msg: >-
+          Object Storage pre-flight failed: bucket '{{ obj_bucket }}' at '{{ obj_endpoint }}'
+          is unreachable or the supplied access keys are invalid. Verify the bucket already
+          exists and that the key has read/write access to it, then redeploy. No install was
+          performed.

@@ -1,0 +1,109 @@
+{# Langfuse stack. Secrets/config come from .env (env_file for web/worker; ${VAR} interpolation for
+   backing services). MinIO service is omitted when Object Storage UDFs are supplied. #}
+services:
+  langfuse-worker:
+    image: docker.io/langfuse/langfuse-worker:{{ langfuse_version }}
+    restart: always
+    depends_on:
+      postgres: {condition: service_healthy}
+      redis: {condition: service_healthy}
+      clickhouse: {condition: service_healthy}
+{% if not obj_enabled | bool %}
+      minio: {condition: service_healthy}
+{% endif %}
+    ports: ["127.0.0.1:3030:3030"]
+    env_file: [.env]
+
+  langfuse-web:
+    image: docker.io/langfuse/langfuse:{{ langfuse_version }}
+    restart: always
+    depends_on:
+      postgres: {condition: service_healthy}
+      redis: {condition: service_healthy}
+      clickhouse: {condition: service_healthy}
+{% if not obj_enabled | bool %}
+      minio: {condition: service_healthy}
+{% endif %}
+    ports: ["127.0.0.1:{{ langfuse_port }}:3000"]
+    env_file: [.env]
+
+  clickhouse:
+    image: {{ clickhouse_image }}
+    restart: always
+    user: "101:101"
+    environment:
+      CLICKHOUSE_DB: default
+      CLICKHOUSE_USER: clickhouse
+      CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD}
+    volumes:
+      - langfuse_clickhouse_data:/var/lib/clickhouse
+      - langfuse_clickhouse_logs:/var/log/clickhouse-server
+    ports: ["127.0.0.1:8123:8123", "127.0.0.1:9000:9000"]
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost:8123/ping || exit 1
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 1s
+
+  redis:
+    image: docker.io/redis:{{ redis_version }}
+    restart: always
+    command: --requirepass ${REDIS_AUTH} --maxmemory-policy noeviction
+    ports: ["127.0.0.1:6379:6379"]
+    volumes:
+      - langfuse_redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 3s
+      timeout: 10s
+      retries: 10
+
+  postgres:
+    image: docker.io/postgres:{{ postgres_version }}
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: postgres
+      TZ: UTC
+      PGTZ: UTC
+    ports: ["127.0.0.1:5432:5432"]
+    volumes:
+      - langfuse_postgres_data:/var/lib/postgresql/data
+{% if not obj_enabled | bool %}
+
+  minio:
+    image: {{ minio_image }}
+    restart: always
+    entrypoint: sh
+    # create the 'langfuse' bucket before starting (upstream docker-compose.yml:117 @ 7997b72)
+    command: -c 'mkdir -p /data/langfuse && minio server --address ":9000" --console-address ":9001" /data'
+    environment:
+      MINIO_ROOT_USER: minio
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    # S3 API + console are loopback-only; event upload is server-side (worker -> minio:9000).
+    ports: ["127.0.0.1:9090:9000", "127.0.0.1:9091:9001"]
+    volumes:
+      - langfuse_minio_data:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 1s
+      timeout: 5s
+      retries: 5
+      start_period: 1s
+{% endif %}
+
+volumes:
+  langfuse_postgres_data:
+  langfuse_clickhouse_data:
+  langfuse_clickhouse_logs:
+  langfuse_redis_data:
+{% if not obj_enabled | bool %}
+  langfuse_minio_data:
+{% endif %}

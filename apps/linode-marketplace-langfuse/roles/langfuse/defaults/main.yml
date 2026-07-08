@@ -1,0 +1,29 @@
+---
+# Single-role-scoped vars only. Cross-role vars (username, _domain, obj_*) come from the
+# StackScript udf() or provision.yml via group_vars — see CLAUDE.md include_role scoping note.
+
+# Container images.
+# langfuse web/worker pinned to 'latest' per operator (2026-07-08) — a conscious deviation from
+# upstream compose's ':3' pin (docker-compose.yml:8,73 @ 7997b72). Backing stores pinned so the
+# data layer is reproducible.
+langfuse_version: "latest"
+postgres_version: "17"
+redis_version: "7"
+clickhouse_image: "docker.io/clickhouse/clickhouse-server:24.12"
+minio_image: "cgr.dev/chainguard/minio:latest"
+
+# Install directory
+langfuse_base_dir: "/opt/langfuse"
+
+# Langfuse web app port (loopback only; nginx fronts it)
+langfuse_port: 3000
+
+# Headless-init resource slugs (LANGFUSE_INIT_*); admin user/keys generated in provision.yml
+langfuse_org_id: "default-org"
+langfuse_org_name: "Default Org"
+langfuse_project_id: "default-project"
+langfuse_project_name: "Default Project"
+
+# Object Storage is selected by presence of obj_bucket (set by the StackScript udf()); when
+# unset, the bundled MinIO container is used instead.
+obj_enabled: "{{ (obj_bucket | default('') | length) > 0 }}"
