@@ -16,13 +16,13 @@
       - /etc/easypanel:/etc/easypanel
       - /var/run/docker.sock:/var/run/docker.sock:ro
 
-# - name: Wait for the Easypanel api
-#   uri:
-#     url: "{{ easypanel_api }}/getSetupStatus"
-#   register: easypanel_status
-#   until: easypanel_status.json is defined
-#   retries: 60
-#   delay: 5
+- name: Wait for the Easypanel api to be ready
+  uri:
+    url: "{{ easypanel_api }}/getSetupStatus"
+  register: easypanel_status
+  until: easypanel_status.json is defined
+  retries: 60
+  delay: 5
 
 - name: Setup Easypanel admin account
   uri:
