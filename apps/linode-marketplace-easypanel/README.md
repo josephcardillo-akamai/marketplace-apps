@@ -36,9 +36,9 @@ When the playbook finishes, the operator can:
   - Sudo username + password
   - Easypanel admin email + password
 
-## Known limitations
+## Known Limitations
 
-Custom domains require a paid Easypanel license. Without a license, hosted apps are reachable only at `<app>.<subdomain>.easypanel.host`.
+Custom domains require a paid Easypanel license. Without a license, hosted apps are reachable only at `<app>.<subdomain>.easypanel.host`. You can see the Easypanel Default Domain by navigating to `https://<domain-or-rdns>/settings/server/general`
 
 ## Use our API
 
