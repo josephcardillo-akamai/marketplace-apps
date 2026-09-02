@@ -44,7 +44,7 @@ else
 fi
 
 export WORK_DIR="/tmp/marketplace-apps"
-export MARKETPLACE_APP="apps/linode-marketplace-akamai-mcp-client"
+export MARKETPLACE_APP="apps/linode-marketplace-opencode"
 
 function provision_failed {
   echo "[info] Provision failed. Sending status.."

@@ -1,25 +1,6 @@
 ---
-- name: Download OpenCode installer
-  get_url:
-    url: https://opencode.ai/install
-    dest: /tmp/opencode-install.sh
-    mode: "0755"
-  register: opencode_installer
-
-- name: Run OpenCode installer
-  script: "{{ opencode_installer.dest }}"
-  register: opencode_install
-  changed_when: opencode_install.rc == 0
-
-- name: Update local PATH
-  lineinfile:
-    path: "{{ ansible_env.HOME }}/.bashrc"
-    line: 'export PATH="$HOME/.local/bin:$PATH"'
-    insertafter: EOF
-    state: present
-
-# cleanup
-- name: Remove OpenCode installer
-  file:
-    path: "{{ opencode_installer }}"
-    state: absent
+- name: Install OpenCode
+  ansible.builtin.shell:
+    cmd: set -o pipefail && curl -fsSL https://opencode.ai/install | bash
+    executable: /bin/bash
+    creates: "{{ ansible_env.HOME }}/.opencode/bin/opencode"
