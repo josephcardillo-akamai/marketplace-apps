@@ -3,7 +3,7 @@
   file:
     path: /etc/easypanel
     state: directory
-    mode: '0700'
+    mode: '0755'
 
 - name: Run Easypanel setup
   docker_container:
@@ -16,7 +16,7 @@
       - /etc/easypanel:/etc/easypanel
       - /var/run/docker.sock:/var/run/docker.sock:ro
 
-- name: Wait for the Easypanel api to be ready
+- name: Wait for the Easypanel API to be ready
   uri:
     url: "{{ easypanel_api }}/getSetupStatus"
   register: easypanel_status
