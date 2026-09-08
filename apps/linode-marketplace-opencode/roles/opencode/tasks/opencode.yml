@@ -1,10 +1,4 @@
 ---
-# - name: Install OpenCode
-#   shell:
-#     cmd: set -o pipefail && curl -fsSL https://opencode.ai/install | bash
-#     executable: /bin/bash
-#     creates: "{{ ansible_env.HOME }}/.opencode/bin/opencode"
-
 - name: Download OpenCode installer
   ansible.builtin.get_url:
     url: https://opencode.ai/install
