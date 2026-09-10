@@ -49,3 +49,16 @@
     headers:
       Authorization: "Bearer {{ easypanel_setup.json.token }}"
   no_log: true
+
+- name: Wait for panel domain to get certificate
+  uri:
+    url: "{{ easypanel_api }}/listCertificates"
+    headers:
+      Authorization: "Bearer {{ easypanel_setup.json.token }}"
+  register: easypanel_certificates
+  until:
+    - easypanel_certificates.json is defined
+    - _domain in (easypanel_certificates.json | map(attribute='domain.main') | list)
+  retries: 24
+  delay: 5
+  no_log: true
